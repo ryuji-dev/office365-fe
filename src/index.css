@@ -1,1 +1,7 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@layer {
+  html {
+    font-family: 'Jua', sans-serif;
+  }
+}
