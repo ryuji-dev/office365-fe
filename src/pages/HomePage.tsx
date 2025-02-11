@@ -10,8 +10,12 @@ function HomePage() {
   return (
     <main className="bg-zinc-900 flex flex-col justify-center mx-auto items-center relative">
       <header className="flex flex-col justify-center bg-[url('./src/assets/backgrounds/header.png')] bg-cover bg-center bg-no-repeat w-[90rem] h-[50rem]">
-        <Header />
-        <div className="flex flex-col justify-center items-center w-full max-w-full h-full gap-8 mt-10">
+        <Header
+          onAboutClick={() => {}}
+          onServiceClick={() => {}}
+          isSocialLoggedIn={false}
+        />
+        <div className="flex flex-col justify-center items-center w-full max-w-full h-full gap-8 mb-10">
           <h1 className="text-gray-50 text-9xl font-bold font-[montserrat]">
             OFFICE 365
           </h1>
