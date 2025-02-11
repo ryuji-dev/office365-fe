@@ -44,7 +44,7 @@ function Header({
       return (
         <span
           key={to}
-          className={`inline-block w-20 text-center cursor-pointer ${
+          className={`inline-block w-20 text-center cursor-pointer animate-slide-up ${
             isHome ? (isHovered ? 'font-base' : 'font-bold') : 'hover:font-bold'
           }`}
           onMouseEnter={() => setHoveredLink(label)}
@@ -61,7 +61,7 @@ function Header({
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
-              className="inline-flex size-[3.125rem] items-center justify-center rounded-full bg-gray-50 text-indigo-500 border-2 border-indigo-300 hover:border-indigo-500 transition-all duration-300 ease"
+              className="inline-flex size-[3.125rem] items-center justify-center rounded-full bg-gray-50 text-indigo-500 border-2 border-indigo-300 hover:border-indigo-500 transition-all duration-300 ease animate-slide-up"
               aria-label="Customise options"
             >
               <img
@@ -97,7 +97,7 @@ function Header({
       return (
         <span
           key={to}
-          className={`inline-block w-20 text-center cursor-pointer ${
+          className={`inline-block w-20 text-center cursor-pointer animate-slide-up ${
             isHome ? (isHovered ? 'font-base' : 'font-bold') : 'hover:font-bold'
           }`}
           onMouseEnter={() => setHoveredLink(label)}
@@ -113,7 +113,7 @@ function Header({
       <Link
         key={to}
         to={to}
-        className={`inline-block w-20 text-center ${
+        className={`inline-block w-20 text-center animate-slide-up ${
           isHome ? (isHovered ? 'font-base' : 'font-bold') : 'hover:font-bold'
         }`}
         onMouseEnter={() => setHoveredLink(label)}
@@ -131,9 +131,11 @@ function Header({
         <img
           src="/src/assets/logo-white.png"
           alt="logo"
-          className="h-32 ml-6"
+          className="h-32 ml-6 animate-slide-up"
         />
-        <p className="text-xl font-[montserrat]">OFFICE 365 x Elice</p>
+        <p className="text-xl font-[montserrat] animate-slide-up">
+          OFFICE 365 x Elice
+        </p>
       </Link>
       <nav className="flex items-center gap-16 mr-16 font-light text-xl font-[montserrat]">
         {links.map((link) => (
