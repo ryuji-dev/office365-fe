@@ -125,12 +125,12 @@ function HomePage() {
           CORPORATE WORK SUPPORT PLATFORM
         </p>
       </header>
-      <div
+      <section
         id="introduction"
         ref={introRef}
         className="bg-[url('./src/assets/backgrounds/intro.png')] bg-cover bg-center bg-no-repeat w-[90rem] h-[50rem]"
       >
-        <section>
+        <div>
           <h2 className="text-5xl text-indigo-900 font-[montserrat] font-bold px-24 pt-20 pb-20 animate-slide-up">
             Introduction
           </h2>
@@ -157,8 +157,72 @@ function HomePage() {
           <p className="text-indigo-900 text-xl font-[montserrat] ml-[60rem] mt-[8rem] animate-slide-up">
             CORPORATE WORK SUPPORT PLATFORM
           </p>
-        </section>
-      </div>
+        </div>
+      </section>
+      <footer className="flex flex-col items-center justify-center bg-zinc-950 text-gray-50 w-[90rem] py-4">
+        <div className="flex gap-4 py-10">
+          {[
+            {
+              href: 'https://github.com/ryuji-dev',
+              alt: 'GitHub',
+              src: './src/assets/footericons/github.svg',
+            },
+            {
+              href: 'https://www.instagram.com/elice.track.coding/',
+              alt: 'Instagram',
+              src: './src/assets/footericons/instagram.svg',
+            },
+            {
+              href: 'https://elice.training/',
+              alt: 'Elice',
+              src: './src/assets/footericons/elice.png',
+            },
+          ].map((link) => (
+            <a
+              key={link.alt}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src={link.src}
+                alt={link.alt}
+                className="w-10 h-10 bg-gray-50 rounded-full transition-transform duration-300 hover:scale-110 animate-slide-up"
+              />
+            </a>
+          ))}
+        </div>
+        <div className="flex flex-col justify-center items-center gap-4">
+          <p className="flex text-sm gap-4">
+            {[
+              { href: '#', label: 'Info' },
+              { href: '#', label: 'Support' },
+              { href: '#', label: 'Marketing' },
+            ].map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="hover:underline animate-slide-up"
+                onClick={(e) => e.preventDefault()}
+              >
+                {link.label}
+              </a>
+            ))}
+          </p>
+          <p className="flex text-sm gap-4">
+            <a href="/terms" className="hover:underline animate-slide-up">
+              Terms of Use
+            </a>{' '}
+            <a href="/privacy" className="hover:underline animate-slide-up">
+              {' '}
+              Privacy Policy
+            </a>
+          </p>
+          <p className="text-sm text-gray-400 animate-slide-up">
+            Copyright ⓒ 2025 - OFFICE 365. All Rights Reserved.
+          </p>
+        </div>
+      </footer>
     </main>
   );
 }
