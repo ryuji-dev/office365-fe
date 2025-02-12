@@ -3,9 +3,9 @@ import { X } from 'lucide-react';
 
 function LoginModal() {
   return (
-    <div className="fixed inset-0 bg-[url('./src/assets/backgrounds/auth.png')] flex justify-center items-center">
+    <div className="fixed inset-0 bg-[url('./src/assets/backgrounds/auth.png')] bg-cover bg-center bg-no-repeat flex justify-center items-center">
       <div className="relative flex flex-col items-center justify-center gap-4 bg-gray-50 w-[25rem] h-[31.25rem] p-4 rounded-lg shadow-lg opacity-[.95]">
-        <Link to="/" className="absolute top-2 right-2">
+        <Link to="/" className="absolute top-2 right-2 cursor-pointer">
           <X />
         </Link>
         <h1 className="text-3xl font-bold m-8 text-center text-zinc-900">

@@ -45,7 +45,11 @@ function Header({
         <span
           key={to}
           className={`inline-block w-20 text-center cursor-pointer animate-slide-up ${
-            isHome ? (isHovered ? 'font-base' : 'font-bold') : 'hover:font-bold'
+            isHome
+              ? isHovered
+                ? 'font-base'
+                : 'font-bold'
+              : 'hover:font-bold cursor-pointer'
           }`}
           onMouseEnter={() => setHoveredLink(label)}
           onMouseLeave={() => setHoveredLink(null)}
@@ -98,7 +102,11 @@ function Header({
         <span
           key={to}
           className={`inline-block w-20 text-center cursor-pointer animate-slide-up ${
-            isHome ? (isHovered ? 'font-base' : 'font-bold') : 'hover:font-bold'
+            isHome
+              ? isHovered
+                ? 'font-base'
+                : 'font-bold'
+              : 'hover:font-bold cursor-pointer'
           }`}
           onMouseEnter={() => setHoveredLink(label)}
           onMouseLeave={() => setHoveredLink(null)}
@@ -113,8 +121,12 @@ function Header({
       <Link
         key={to}
         to={to}
-        className={`inline-block w-20 text-center animate-slide-up ${
-          isHome ? (isHovered ? 'font-base' : 'font-bold') : 'hover:font-bold'
+        className={`inline-block w-20 text-center cursor-pointer animate-slide-up ${
+          isHome
+            ? isHovered
+              ? 'font-base'
+              : 'font-bold'
+            : 'hover:font-bold cursor-pointer'
         }`}
         onMouseEnter={() => setHoveredLink(label)}
         onMouseLeave={() => setHoveredLink(null)}
