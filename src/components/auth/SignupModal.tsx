@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { z } from 'zod';
+import { signup } from '../../apis/authApis';
+import { useMutation } from '@tanstack/react-query';
+import { SignupRequest, SignupResponse } from '../../types/auth';
 
 const signupSchema = z
   .object({
@@ -13,38 +16,83 @@ const signupSchema = z
       .regex(/[A-Z]/, '비밀번호는 영문 대문자를 포함해야 합니다.')
       .regex(/[0-9]/, '비밀번호는 숫자를 포함해야 합니다.')
       .regex(/[^a-zA-Z0-9]/, '비밀번호는 특수문자를 포함해야 합니다.'),
-    confirmPassword: z.string(),
+    passwordConfirm: z.string(),
     contact: z
       .string()
-      .length(11, '연락처는 11자리 숫자여야 합니다.')
-      .regex(/^\d{3}-\d{4}-\d{4}$/, '연락처 형식이 올바르지 않습니다.')
-      .refine((value) => value.replace(/-/g, '').length === 11, {
-        message: '연락처는 11자리 숫자여야 합니다.',
-      }),
+      .refine(
+        (value) => {
+          const cleanedValue = value.replace(/-/g, '');
+          return cleanedValue.length === 11;
+        },
+        {
+          message: '연락처는 11자리 숫자여야 합니다.',
+        }
+      )
+      .refine(
+        (value) =>
+          /^\d{3}-\d{4}-\d{4}$/.test(value) ||
+          value.replace(/-/g, '').length === 11,
+        {
+          message: '연락처 형식이 올바르지 않습니다.',
+        }
+      ),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.password === data.passwordConfirm, {
     message: '비밀번호가 일치하지 않습니다.',
-    path: ['confirmPassword'],
+    path: ['passwordConfirm'],
   });
 
 function SignupModal() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignupRequest>({
     email: '',
     password: '',
-    confirmPassword: '',
+    passwordConfirm: '',
     contact: '',
   });
 
   const [errors, setErrors] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
+    passwordConfirm: '',
     contact: '',
+  });
+
+  const mutation = useMutation<SignupResponse, Error, SignupRequest>({
+    mutationFn: signup,
+    onSuccess: () => {
+      alert('회원가입이 완료되었습니다.');
+    },
+    onError: (error: Error) => {
+      console.error('회원가입 오류:', error);
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        email: '이메일이 이미 존재합니다.',
+      }));
+    },
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    // 연락처 입력 처리
+    if (name === 'contact') {
+      const numericValue = value.replace(/\D/g, '');
+      let formattedValue = numericValue;
+
+      if (numericValue.length > 3) {
+        formattedValue = `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
+      }
+      if (numericValue.length > 7) {
+        formattedValue = `${numericValue.slice(0, 3)}-${numericValue.slice(
+          3,
+          7
+        )}-${numericValue.slice(7, 11)}`;
+      }
+      setFormData({ ...formData, [name]: formattedValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
 
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -57,13 +105,14 @@ function SignupModal() {
 
     try {
       signupSchema.parse(formData);
+      mutation.mutate(formData);
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErrors = error.flatten().fieldErrors;
         setErrors({
           email: fieldErrors.email?.[0] || '',
           password: fieldErrors.password?.[0] || '',
-          confirmPassword: fieldErrors.confirmPassword?.[0] || '',
+          passwordConfirm: fieldErrors.passwordConfirm?.[0] || '',
           contact: fieldErrors.contact?.[0] || '',
         });
       } else {
@@ -110,17 +159,17 @@ function SignupModal() {
           )}
           <input
             type="password"
-            name="confirmPassword"
+            name="passwordConfirm"
             placeholder="비밀번호 확인"
-            value={formData.confirmPassword}
+            value={formData.passwordConfirm}
             onChange={handleChange}
             className={`w-[20.6rem] h-10 border-2 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500 ${
-              errors.confirmPassword ? 'border-rose-300' : 'border-gray-300'
+              errors.passwordConfirm ? 'border-rose-300' : 'border-gray-300'
             }`}
           />
-          {errors.confirmPassword && (
+          {errors.passwordConfirm && (
             <p className="text-rose-500 mb-1 text-sm">
-              {errors.confirmPassword}
+              {errors.passwordConfirm}
             </p>
           )}
           <input
