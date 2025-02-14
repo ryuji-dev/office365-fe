@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DropdownMenu } from 'radix-ui';
 import { NavLink } from '../../types/homepage';
+import useAuthStore from '../../stores/useAuthStore';
 
 function Header({
   onAboutClick,
@@ -13,8 +14,12 @@ function Header({
   isSocialLoggedIn: boolean;
 }) {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    useAuthStore.getState().isAuthenticated
+  );
+  const [profileImage, setProfileImage] = useState<string | null>(
+    useAuthStore.getState().user?.profileImage || null
+  );
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -65,11 +70,11 @@ function Header({
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
-              className="inline-flex size-[3.125rem] items-center justify-center rounded-full bg-gray-50 text-indigo-500 border-2 border-indigo-300 hover:border-indigo-500 transition-all duration-300 ease animate-slide-up"
+              className="inline-flex size-[3.125rem] items-center justify-center rounded-full bg-gray-50 text-indigo-500 border-2 border-indigo-300 hover:border-indigo-500 transition-all duration-300 ease animate-slide-up cursor-pointer"
               aria-label="Customise options"
             >
               <img
-                src={profileImage || '/src/assets/icons/elice.png'}
+                src={profileImage || '/src/assets/elice.png'}
                 alt="Elice"
                 className="rounded-full"
               />
@@ -79,14 +84,14 @@ function Header({
           <DropdownMenu.Portal>
             <DropdownMenu.Content
               className="min-w-[10rem] rounded-lg bg-gray-50 p-1 shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)] will-change-[opacity,transform] data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade data-[side=right]:animate-slideLeftAndFade data-[side=top]:animate-slideDownAndFade"
-              sideOffset={5}
+              sideOffset={8}
             >
-              <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[2.7rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1">
+              <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[2.7rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
                 <Link to="/mypage">마이페이지</Link>
               </DropdownMenu.Item>
               <DropdownMenu.Separator className="m-[5px] h-px bg-indigo-200" />
               <DropdownMenu.Item
-                className="group cursor-pointer relative flex h-8 select-none items-center rounded-sm pl-[3.1rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1"
+                className="group cursor-pointer relative flex h-8 select-none items-center rounded-sm pl-[3.1rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50"
                 onClick={handleLogout}
               >
                 로그아웃
