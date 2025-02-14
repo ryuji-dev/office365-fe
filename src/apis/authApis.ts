@@ -24,6 +24,7 @@ export const login = async (
   useAuthStore.setState({
     isAuthenticated: true,
     user: {
+      _id: userData._id,
       email: userData.email,
       profileImage: userData.profileImage,
     },
@@ -42,4 +43,35 @@ export const logout = async () => {
   });
 
   return response.data;
+};
+
+// 소셜 로그인 API
+export const socialLogin = async (
+  provider: 'google' | 'naver' | 'kakao',
+  token: string
+): Promise<LoginResponse> => {
+  const response = await axiosInstance.post<LoginResponse>(
+    `/${provider}/callback`,
+    {
+      token,
+    }
+  );
+
+  return response.data;
+};
+
+// 소셜 로그아웃 API
+export const socialLogout = async (provider: 'google' | 'naver' | 'kakao') => {
+  const response = await axiosInstance.post(`/${provider}/logout`);
+  return response.data;
+};
+
+// 구글 로그인 API
+export const googleLogin = async (token: string): Promise<LoginResponse> => {
+  return socialLogin('google', token);
+};
+
+// 구글 로그아웃 API
+export const googleLogout = async () => {
+  return socialLogout('google');
 };

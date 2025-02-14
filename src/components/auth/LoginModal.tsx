@@ -6,6 +6,8 @@ import * as Toast from '@radix-ui/react-toast';
 import ToastNotification from '../common/Toast';
 import { login } from '../../apis/authApis';
 import { LoginResponse, LoginRequest } from '../../types/auth';
+import useCookie from '../../hooks/useCookie';
+import useAuthStore from '../../stores/useAuthStore';
 
 function LoginModal() {
   const navigate = useNavigate();
@@ -36,6 +38,19 @@ function LoginModal() {
     if (e.key === 'Enter') {
       handleLogin();
     }
+  };
+
+  const { cookieValue: userCookie } = useCookie('user');
+
+  const handleGoogleLogin = () => {
+    const clientID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const redirectURI = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+    const scope = 'email%20profile';
+    const authURL = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientID}&redirect_uri=${redirectURI}&response_type=code&scope=${scope}`;
+    window.location.href = authURL;
+
+    const user = JSON.parse(userCookie || '{}');
+    useAuthStore.getState().socialLogin(user);
   };
 
   return (
@@ -88,6 +103,7 @@ function LoginModal() {
           <img
             src="./src/assets/socialicons/google.svg"
             alt="Google Icon"
+            onClick={handleGoogleLogin}
             className="w-12 h-12 cursor-pointer opacity-80 hover:opacity-100 transition-opacity duration-300"
           />
           <img

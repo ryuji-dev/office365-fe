@@ -18,12 +18,14 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  _id: string;
   email: string;
   user: User;
   profileImage: string;
 }
 
 export interface User {
+  _id: string;
   email: string;
   profileImage: string;
 }

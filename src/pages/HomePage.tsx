@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import {
+  CalendarCheck2,
+  CircleCheckBig,
+  MailOpen,
+  SquareParking,
+} from 'lucide-react';
+import * as Toast from '@radix-ui/react-toast';
+import ToastNotification from '../components/common/Toast';
 import Header from '../components/common/Header';
-import { CalendarCheck2, MailOpen, SquareParking } from 'lucide-react';
 
 const ServiceText = ({ text }: { text: string }) => (
   <div className="flex items-center gap-8">
@@ -36,15 +43,15 @@ function HomePage() {
   const introRef = useRef<HTMLDivElement>(null);
   const serviceRef = useRef<HTMLDivElement>(null);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [loginProvider, setLoginProvider] = useState('');
+  const [isToastOpen, setIsToastOpen] = useState(false);
 
-  // 소개 섹션으로 스크롤
   const scrollToIntroduction = () => {
     if (introRef.current) {
       introRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  // 서비스 섹션으로 스크롤
   const scrollToService = () => {
     if (serviceRef.current) {
       serviceRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -59,14 +66,13 @@ function HomePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // 애니메이션 효과 적용
   useEffect(() => {
     const handleScroll = () => {
       if (introRef.current) {
         const introTexts = introRef.current.querySelectorAll('.intro-text');
         introTexts.forEach((text) => {
           const textPosition = text.getBoundingClientRect().top;
-          const triggerHeight = window.innerHeight; // 뷰포트 높이 끝까지 설정
+          const triggerHeight = window.innerHeight;
 
           if (
             textPosition < triggerHeight &&
@@ -76,7 +82,6 @@ function HomePage() {
           }
         });
 
-        // 모든 요소에 애니메이션이 적용되면 스크롤 이벤트 리스너 제거
         if (
           Array.from(introTexts).every((text) =>
             text.classList.contains('animate-slide-up')
@@ -99,6 +104,28 @@ function HomePage() {
       serviceRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [state]);
+
+  useEffect(() => {
+    const URLParams = new URLSearchParams(window.location.search);
+    const loginSuccess = URLParams.get('loginSuccess');
+    const provider = URLParams.get('provider');
+
+    if (loginSuccess) {
+      setLoginProvider(provider || '');
+      setIsToastOpen(true);
+    }
+  }, []);
+
+  const getSocialLoginMessage = () => {
+    switch (loginProvider) {
+      case 'google':
+        return '구글 로그인에 성공했습니다.';
+      case 'naver':
+        return '네이버 로그인에 성공했습니다.';
+      case 'kakao':
+        return '카카오 로그인에 성공했습니다.';
+    }
+  };
 
   return (
     <main className="bg-zinc-900 flex flex-col justify-center mx-auto items-center relative">
@@ -232,6 +259,15 @@ function HomePage() {
           </p>
         </div>
       </footer>
+      <Toast.Provider>
+        <ToastNotification
+          open={isToastOpen}
+          onOpenChange={setIsToastOpen}
+          icon={CircleCheckBig}
+          message={getSocialLoginMessage() || ''}
+        />
+        <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
+      </Toast.Provider>
     </main>
   );
 }
