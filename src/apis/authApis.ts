@@ -22,6 +22,7 @@ export const login = async (
 
   const userData = response.data;
   useAuthStore.setState({
+    isAuthenticated: true,
     user: {
       email: userData.email,
       profileImage: userData.profileImage,

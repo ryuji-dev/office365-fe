@@ -1,7 +1,37 @@
-import { Link } from 'react-router-dom';
-import { X } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { CircleCheckBig, CircleX, X } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import * as Toast from '@radix-ui/react-toast';
+import ToastNotification from '../common/Toast';
+import { login } from '../../apis/authApis';
+import { LoginResponse, LoginRequest } from '../../types/auth';
 
 function LoginModal() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [isToastError, setIsToastError] = useState(false);
+
+  const mutation = useMutation<LoginResponse, Error, LoginRequest>({
+    mutationFn: ({ email, password }) => login(email, password),
+    onSuccess: () => {
+      setIsToastOpen(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    },
+    onError: (error) => {
+      console.error('로그인 오류:', error);
+      setIsToastError(true);
+    },
+  });
+
+  const handleLogin = () => {
+    mutation.mutate({ email, password });
+  };
+
   return (
     <div className="fixed inset-0 bg-[url('./src/assets/backgrounds/auth.png')] bg-cover bg-center bg-no-repeat flex justify-center items-center">
       <div className="relative flex flex-col items-center justify-center gap-4 bg-gray-50 w-[25rem] h-[31.25rem] p-4 rounded-lg shadow-lg opacity-[.95]">
@@ -15,15 +45,22 @@ function LoginModal() {
           <input
             type="text"
             placeholder="아이디"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-[20.6rem] h-10 border-2 border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500"
           />
           <input
             type="password"
             placeholder="비밀번호"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className="w-[20.6rem] h-10 border-2 border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500"
           />
         </div>
-        <button className="bg-indigo-500 text-gray-50 px-[9rem] py-2 rounded-lg hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-300 cursor-pointer">
+        <button
+          onClick={handleLogin}
+          className="bg-indigo-500 text-gray-50 px-[9rem] py-2 rounded-lg hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-300 cursor-pointer"
+        >
           로그인
         </button>
         <div className="flex justify-between w-full px-6">
@@ -58,6 +95,22 @@ function LoginModal() {
           />
         </div>
       </div>
+      <Toast.Provider>
+        <ToastNotification
+          open={isToastOpen}
+          onOpenChange={setIsToastOpen}
+          icon={CircleCheckBig}
+          message="로그인에 성공했습니다."
+        />
+        <ToastNotification
+          open={isToastError}
+          onOpenChange={setIsToastError}
+          icon={CircleX}
+          message="로그인에 실패했습니다."
+          isError={true}
+        />
+        <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
+      </Toast.Provider>
     </div>
   );
 }
