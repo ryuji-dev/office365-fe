@@ -37,7 +37,6 @@ function Header({
     try {
       await logout();
       setIsLoggedIn(false);
-      setProfileImage(null);
       setIsToastOpen(true);
       setTimeout(() => {
         navigate('/');
@@ -152,7 +151,7 @@ function Header({
         }`}
         onMouseEnter={() => setHoveredLink(label)}
         onMouseLeave={() => setHoveredLink(null)}
-        onClick={handleLogin}
+        onClick={isHome ? undefined : handleLogin}
       >
         {label}
       </Link>
