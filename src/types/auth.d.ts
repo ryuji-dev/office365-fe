@@ -11,3 +11,22 @@ export interface SignupResponse {
   user: User;
   token: string;
 }
+
+export interface LoginResponse {
+  email: string;
+  user: User;
+  profileImage: string;
+}
+
+export interface User {
+  email: string;
+  profileImage: string;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+  login: (user: User) => void;
+  socialLogin: (user: User) => void;
+  logout: () => void;
+}
