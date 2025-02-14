@@ -53,8 +53,9 @@ function HomePage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      window.scrollTo(0, -800);
-    }, 0);
+      window.scrollTo(0, 0);
+    }, 100);
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -210,15 +211,23 @@ function HomePage() {
             ))}
           </p>
           <p className="flex text-sm gap-4">
-            <a href="/terms" className="hover:underline animate-slide-up">
+            <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="hover:underline animate-slide-up"
+            >
               Terms of Use
             </a>{' '}
-            <a href="/privacy" className="hover:underline animate-slide-up">
+            <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="hover:underline animate-slide-up"
+            >
               {' '}
               Privacy Policy
             </a>
           </p>
-          <p className="text-sm text-gray-400 animate-slide-up">
+          <p className="text-xs text-gray-400 animate-slide-up">
             Copyright ⓒ 2025 - OFFICE 365. All Rights Reserved.
           </p>
         </div>

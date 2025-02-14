@@ -32,6 +32,12 @@ function LoginModal() {
     mutation.mutate({ email, password });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleLogin();
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-[url('./src/assets/backgrounds/auth.png')] bg-cover bg-center bg-no-repeat flex justify-center items-center">
       <div className="relative flex flex-col items-center justify-center gap-4 bg-gray-50 w-[25rem] h-[31.25rem] p-4 rounded-lg shadow-lg opacity-[.95]">
@@ -54,6 +60,7 @@ function LoginModal() {
             placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="w-[20.6rem] h-10 border-2 border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500"
           />
         </div>

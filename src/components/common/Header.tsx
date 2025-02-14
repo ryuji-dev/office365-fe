@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DropdownMenu } from 'radix-ui';
+import { logout } from '../../apis/authApis';
 import { NavLink } from '../../types/homepage';
+import * as Toast from '@radix-ui/react-toast';
+import ToastNotification from '../common/Toast';
 import useAuthStore from '../../stores/useAuthStore';
+import { CircleCheckBig, CircleX } from 'lucide-react';
 
 function Header({
   onAboutClick,
@@ -13,6 +17,7 @@ function Header({
   onServiceClick: () => void;
   isSocialLoggedIn: boolean;
 }) {
+  const navigate = useNavigate();
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(
     useAuthStore.getState().isAuthenticated
@@ -20,15 +25,27 @@ function Header({
   const [profileImage, setProfileImage] = useState<string | null>(
     useAuthStore.getState().user?.profileImage || null
   );
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [isToastError, setIsToastError] = useState(false);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
     setProfileImage('/src/assets/elice.png');
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setProfileImage(null);
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsLoggedIn(false);
+      setProfileImage(null);
+      setIsToastOpen(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    } catch (error) {
+      console.error('로그아웃 실패', error);
+      setIsToastError(true);
+    }
   };
 
   const links: NavLink[] = [
@@ -143,25 +160,41 @@ function Header({
   };
 
   return (
-    <section className="flex text-gray-50 justify-between">
-      <Link to="/" className="flex items-center">
-        <img
-          src="/src/assets/logo-white.png"
-          alt="logo"
-          className="h-32 ml-6 animate-slide-up"
-        />
-        <p className="text-xl font-[montserrat] animate-slide-up">
-          OFFICE 365 x Elice
-        </p>
-      </Link>
-      <nav className="flex items-center gap-16 mr-16 font-light text-xl font-[montserrat]">
-        {links.map((link) => (
-          <span key={link.to} onClick={() => setHoveredLink(null)}>
-            {renderLink(link)}
-          </span>
-        ))}
-      </nav>
-    </section>
+    <Toast.Provider>
+      <ToastNotification
+        open={isToastOpen}
+        onOpenChange={setIsToastOpen}
+        icon={CircleCheckBig}
+        message="OFFICE 365에 로그아웃 되었습니다."
+      />
+      <ToastNotification
+        open={isToastError}
+        onOpenChange={setIsToastError}
+        icon={CircleX}
+        message="로그아웃에 실패했습니다."
+      />
+      <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
+
+      <section className="flex text-gray-50 justify-between">
+        <Link to="/" className="flex items-center">
+          <img
+            src="/src/assets/logo-white.png"
+            alt="logo"
+            className="h-32 ml-6 animate-slide-up"
+          />
+          <p className="text-xl font-[montserrat] animate-slide-up">
+            OFFICE 365 x Elice
+          </p>
+        </Link>
+        <nav className="flex items-center gap-16 mr-16 font-light text-xl font-[montserrat]">
+          {links.map((link) => (
+            <span key={link.to} onClick={() => setHoveredLink(null)}>
+              {renderLink(link)}
+            </span>
+          ))}
+        </nav>
+      </section>
+    </Toast.Provider>
   );
 }
 

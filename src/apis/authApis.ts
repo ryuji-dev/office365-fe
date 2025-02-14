@@ -31,3 +31,15 @@ export const login = async (
 
   return userData;
 };
+
+// 로그아웃 API
+export const logout = async () => {
+  const response = await axiosInstance.post('/logout');
+
+  useAuthStore.setState({
+    isAuthenticated: false,
+    user: null,
+  });
+
+  return response.data;
+};
