@@ -53,6 +53,17 @@ function LoginModal() {
     useAuthStore.getState().socialLogin(user);
   };
 
+  const handleNaverLogin = () => {
+    const clientID = import.meta.env.VITE_NAVER_CLIENT_ID;
+    const redirectURI = import.meta.env.VITE_NAVER_REDIRECT_URI;
+    const state = 'random_state_string';
+    const authURL = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientID}&redirect_uri=${redirectURI}&state=${state}`;
+    window.location.href = authURL;
+
+    const user = JSON.parse(userCookie || '{}');
+    useAuthStore.getState().socialLogin(user);
+  };
+
   return (
     <div className="fixed inset-0 bg-[url('./src/assets/backgrounds/auth.png')] bg-cover bg-center bg-no-repeat flex justify-center items-center">
       <div className="relative flex flex-col items-center justify-center gap-4 bg-gray-50 w-[25rem] h-[31.25rem] p-4 rounded-lg shadow-lg opacity-[.95]">
@@ -109,6 +120,7 @@ function LoginModal() {
           <img
             src="./src/assets/socialicons/naver.png"
             alt="Naver Icon"
+            onClick={handleNaverLogin}
             className="w-12 h-12 cursor-pointer opacity-80 hover:opacity-100 transition-opacity duration-300"
           />
           <img

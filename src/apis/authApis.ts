@@ -75,3 +75,13 @@ export const googleLogin = async (token: string): Promise<LoginResponse> => {
 export const googleLogout = async () => {
   return socialLogout('google');
 };
+
+// 네이버 로그인 API
+export const naverLogin = async (token: string): Promise<LoginResponse> => {
+  return socialLogin('naver', token);
+};
+
+// 네이버 로그아웃 API
+export const naverLogout = async () => {
+  return socialLogout('naver');
+};
