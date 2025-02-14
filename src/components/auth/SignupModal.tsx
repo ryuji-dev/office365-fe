@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { CircleCheckBig, CircleX, X } from 'lucide-react';
 import { z } from 'zod';
 import { signup } from '../../apis/authApis';
 import { useMutation } from '@tanstack/react-query';
+import * as Toast from '@radix-ui/react-toast';
+import ToastNotification from '../common/Toast';
 import { SignupRequest, SignupResponse } from '../../types/auth';
 
 const signupSchema = z
@@ -43,24 +45,29 @@ const signupSchema = z
   });
 
 function SignupModal() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<SignupRequest>({
     email: '',
     password: '',
     passwordConfirm: '',
     contact: '',
   });
-
   const [errors, setErrors] = useState({
     email: '',
     password: '',
     passwordConfirm: '',
     contact: '',
   });
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [isToastError, setIsToastError] = useState(false);
 
   const mutation = useMutation<SignupResponse, Error, SignupRequest>({
     mutationFn: signup,
     onSuccess: () => {
-      alert('회원가입이 완료되었습니다.');
+      setIsToastOpen(true);
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
     },
     onError: (error: Error) => {
       console.error('회원가입 오류:', error);
@@ -68,6 +75,7 @@ function SignupModal() {
         ...prevErrors,
         email: '이메일이 이미 존재합니다.',
       }));
+      setIsToastError(true);
     },
   });
 
@@ -199,6 +207,20 @@ function SignupModal() {
           </Link>
         </div>
       </div>
+      <ToastNotification
+        open={isToastOpen}
+        onOpenChange={setIsToastOpen}
+        icon={CircleCheckBig}
+        message="환영합니다 🎉 회원가입이 완료되었습니다."
+      />
+      <ToastNotification
+        open={isToastError}
+        onOpenChange={setIsToastError}
+        icon={CircleX}
+        message="회원가입에 실패했습니다."
+        isError
+      />
+      <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
     </div>
   );
 }
