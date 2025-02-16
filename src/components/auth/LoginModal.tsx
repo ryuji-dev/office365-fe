@@ -64,6 +64,16 @@ function LoginModal() {
     useAuthStore.getState().socialLogin(user);
   };
 
+  const handleKakaoLogin = () => {
+    const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID;
+    const redirectURI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
+    const authURL = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectURI}&response_type=code`;
+    window.location.href = authURL;
+
+    const user = JSON.parse(userCookie || '{}');
+    useAuthStore.getState().socialLogin(user);
+  };
+
   return (
     <div className="fixed inset-0 bg-[url('./src/assets/backgrounds/auth.png')] bg-cover bg-center bg-no-repeat flex justify-center items-center">
       <div className="relative flex flex-col items-center justify-center gap-4 bg-gray-50 w-[25rem] h-[31.25rem] p-4 rounded-lg shadow-lg opacity-[.95]">
@@ -126,6 +136,7 @@ function LoginModal() {
           <img
             src="./src/assets/socialicons/kakao.png"
             alt="Kakao Icon"
+            onClick={handleKakaoLogin}
             className="w-12 h-12 cursor-pointer opacity-80 hover:opacity-100 transition-opacity duration-300"
           />
         </div>

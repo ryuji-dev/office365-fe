@@ -85,3 +85,13 @@ export const naverLogin = async (token: string): Promise<LoginResponse> => {
 export const naverLogout = async () => {
   return socialLogout('naver');
 };
+
+// 카카오 로그인 API
+export const kakaoLogin = async (token: string): Promise<LoginResponse> => {
+  return socialLogin('kakao', token);
+};
+
+// 카카오 로그아웃 API
+export const kakaoLogout = async () => {
+  return socialLogout('kakao');
+};
