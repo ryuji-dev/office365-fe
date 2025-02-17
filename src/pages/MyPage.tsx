@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Avatar, AlertDialog } from 'radix-ui';
-import { Profile } from '../types/mypage';
+import { getProfile } from '../apis/mypageApis';
+import { ProfileResponse } from '../types/mypage';
+import { User } from '../types/auth';
 import UpdatePasswordModal from '../components/mypage/UpdatePasswordModal';
 
 function MyPage() {
-  const [user, setUser] = useState<Profile | null>(null);
+  const { data: fetchedUser } = useQuery<ProfileResponse>({
+    queryKey: ['profile'],
+    queryFn: getProfile,
+  });
+  const [user, setUser] = useState<User | null>(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const handleFileChange = (e: Event) => {
@@ -22,6 +29,13 @@ function MyPage() {
   };
 
   const handleDeleteAccount = async () => {};
+
+  useEffect(() => {
+    console.log(fetchedUser);
+    if (fetchedUser) {
+      setUser(fetchedUser.user);
+    }
+  }, [fetchedUser]);
 
   return (
     <main className="bg-zinc-900 flex flex-col justify-center mx-auto items-center h-full">
