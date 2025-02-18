@@ -32,3 +32,8 @@ export const updatePassword = async (
     passwordConfirm,
   });
 };
+
+// 회원 탈퇴 API
+export const deleteUser = async (): Promise<void> => {
+  await axiosInstance.delete('/mypage/delete-user');
+};
