@@ -19,3 +19,16 @@ export const updateProfileAvatar = async (
 
   return response.data as UploadResponse;
 };
+
+// 비밀번호 변경 API
+export const updatePassword = async (
+  currentPassword: string,
+  newPassword: string,
+  passwordConfirm: string
+): Promise<void> => {
+  await axiosInstance.post('/mypage/change-password', {
+    currentPassword,
+    newPassword,
+    passwordConfirm,
+  });
+};

@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { z } from 'zod';
-import { X } from 'lucide-react';
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import * as Toast from '@radix-ui/react-toast';
+import ToastNotification from '../common/Toast';
+import { CircleCheckBig, CircleX, X } from 'lucide-react';
+import { updatePassword } from '../../apis/mypageApis';
 import { UpdatePasswordModalProps } from '../../types/mypage';
 
 const updatePasswordSchema = z
@@ -21,6 +26,7 @@ const updatePasswordSchema = z
   });
 
 function UpdatePasswordModal({ onClose }: UpdatePasswordModalProps) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -31,11 +37,43 @@ function UpdatePasswordModal({ onClose }: UpdatePasswordModalProps) {
     newPassword: '',
     passwordConfirm: '',
   });
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [isToastError, setIsToastError] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: (data: {
+      currentPassword: string;
+      newPassword: string;
+      passwordConfirm: string;
+    }) =>
+      updatePassword(
+        data.currentPassword,
+        data.newPassword,
+        data.passwordConfirm
+      ),
+    onSuccess: () => {
+      setIsToastOpen(true);
+      setTimeout(() => {
+        onClose();
+        navigate('/mypage');
+      }, 1000);
+    },
+    onError: (error) => {
+      setIsToastError(true);
+      console.error('비밀번호 변경에 실패했습니다.', error);
+    },
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
   };
 
   const handleSubmit = () => {
@@ -70,6 +108,14 @@ function UpdatePasswordModal({ onClose }: UpdatePasswordModalProps) {
     }
 
     setErrors(currentErrors);
+
+    if (
+      !currentErrors.currentPassword &&
+      !currentErrors.newPassword &&
+      !currentErrors.passwordConfirm
+    ) {
+      mutation.mutate(formData);
+    }
   };
 
   return (
@@ -113,10 +159,11 @@ function UpdatePasswordModal({ onClose }: UpdatePasswordModalProps) {
           )}
           <input
             type="password"
-            name="confirmPassword"
+            name="passwordConfirm"
             placeholder="새 비밀번호 확인"
             value={formData.passwordConfirm}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
             className={`w-[20.6rem] h-10 border-2 border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500 ${
               errors.passwordConfirm ? 'border-rose-300' : 'border-gray-300'
             }`}
@@ -133,6 +180,23 @@ function UpdatePasswordModal({ onClose }: UpdatePasswordModalProps) {
           비밀번호 변경하기
         </button>
       </div>
+
+      <Toast.Provider>
+        <ToastNotification
+          open={isToastOpen}
+          onOpenChange={setIsToastOpen}
+          icon={CircleCheckBig}
+          message="비밀번호가 변경되었습니다."
+        />
+        <ToastNotification
+          open={isToastError}
+          onOpenChange={setIsToastError}
+          icon={CircleX}
+          message="비밀번호 변경에 실패했습니다. 다시 시도해주세요."
+          isError={true}
+        />
+        <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
+      </Toast.Provider>
     </div>
   );
 }

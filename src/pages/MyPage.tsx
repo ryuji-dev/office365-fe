@@ -168,7 +168,9 @@ function MyPage() {
           </div>
         </section>
       </div>
-      {isPasswordModalOpen && <UpdatePasswordModal />}
+      {isPasswordModalOpen && (
+        <UpdatePasswordModal onClose={() => setIsPasswordModalOpen(false)} />
+      )}
     </main>
   );
 }

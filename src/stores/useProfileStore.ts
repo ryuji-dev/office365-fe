@@ -5,7 +5,7 @@ import { ProfileState } from '../types/mypage';
 const useProfileStore = create(
   persist<ProfileState>(
     (set) => ({
-      profileImage: 'src/assets/elice.png',
+      profileImage: null,
       setProfileImage: (image) => {
         set({ profileImage: image });
       },
