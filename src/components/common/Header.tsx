@@ -89,7 +89,7 @@ function Header({
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button
-              className="inline-flex size-[3.125rem] items-center justify-center rounded-full bg-gray-50 text-indigo-500 border-2 border-indigo-300 hover:border-indigo-500 transition-all duration-300 ease animate-slide-up cursor-pointer"
+              className="inline-flex size-[3.125rem] items-center justify-center overflow-hidden rounded-full bg-gray-50 text-indigo-500 border-2 border-indigo-300 hover:border-indigo-500 transition-all duration-300 ease animate-slide-up cursor-pointer"
               aria-label="Customise options"
             >
               <img

@@ -17,3 +17,7 @@ export interface ProfileState {
   profileImage: string | null;
   setProfileImage: (image: string | null) => void;
 }
+
+export interface UpdatePasswordModalProps {
+  onClose: () => void;
+}
