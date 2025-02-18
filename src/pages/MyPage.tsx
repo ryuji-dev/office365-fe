@@ -1,27 +1,97 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Avatar, AlertDialog } from 'radix-ui';
-import { Profile } from '../types/mypage';
+import * as Toast from '@radix-ui/react-toast';
+import ToastNotification from '../components/common/Toast';
+import {
+  getProfile,
+  updateProfileAvatar,
+  deleteUser,
+} from '../apis/mypageApis';
+import { ProfileResponse, UploadResponse } from '../types/mypage';
+import { User } from '../types/auth';
 import UpdatePasswordModal from '../components/mypage/UpdatePasswordModal';
+import useProfileStore from '../stores/useProfileStore';
+import useAuthStore from '../stores/useAuthStore';
+import { CircleCheckBig, CircleX } from 'lucide-react';
 
 function MyPage() {
-  const [user, setUser] = useState<Profile | null>(null);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const { data: fetchedUser } = useQuery<ProfileResponse>({
+    queryKey: ['profile'],
+    queryFn: getProfile,
+  });
+  const setProfileImage = useProfileStore((state) => state.setProfileImage);
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [isToastError, setIsToastError] = useState(false);
+
+  const avatarMutation = useMutation<UploadResponse, Error, FormData>({
+    mutationFn: (formData: FormData) => updateProfileAvatar(formData),
+    onSuccess: (data) => {
+      const imageURL = data.user.profileImage;
+      if (imageURL) {
+        setProfileImage(imageURL);
+      } else {
+        console.error('Failed to update profile image: URL is undefined');
+      }
+
+      setUser((prevUser) => {
+        const updatedUser = prevUser
+          ? { ...prevUser, profileImage: imageURL }
+          : null;
+        return updatedUser;
+      });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    },
+    onError: (error) => {
+      console.error('프로필 아바타 업데이트에 실패했습니다.', error);
+    },
+  });
+
+  const deleteMutation = useMutation<void, Error>({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      useAuthStore.setState({ isAuthenticated: false });
+      setIsToastOpen(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+    },
+    onError: (error) => {
+      setIsToastError(true);
+      console.error('회원 탈퇴에 실패했습니다.', error);
+    },
+  });
 
   const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const file = target.files?.[0];
-
     if (file) {
-      const imageURL = URL.createObjectURL(file);
+      const imageUrl = URL.createObjectURL(file);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, profileImage: imageUrl } : null
+      );
       const formData = new FormData();
 
-      setUser((prev) => (prev ? { ...prev, profileImage: imageURL } : null));
       formData.append('avatar', file);
+      avatarMutation.mutate(formData);
     }
   };
 
-  const handleDeleteAccount = async () => {};
+  const handleDeleteAccount = async () => {
+    deleteMutation.mutate();
+  };
+
+  useEffect(() => {
+    if (fetchedUser) {
+      setUser(fetchedUser.user);
+    }
+  }, [fetchedUser]);
 
   return (
     <main className="bg-zinc-900 flex flex-col justify-center mx-auto items-center h-full">
@@ -55,7 +125,7 @@ function MyPage() {
             <Avatar.Root className="inline-flex size-[6.25rem] select-none items-center justify-center overflow-hidden rounded-full bg-blackA1 align-middle">
               <Avatar.Image
                 className="size-full rounded-[inherit] object-cover"
-                src={user?.profileImage || '/src/assets/elice.png'}
+                src={user?.profileImage || 'src/assets/elice.png'}
                 alt="Elice"
               />
             </Avatar.Root>
@@ -127,7 +197,26 @@ function MyPage() {
           </div>
         </section>
       </div>
-      {isPasswordModalOpen && <UpdatePasswordModal />}
+      {isPasswordModalOpen && (
+        <UpdatePasswordModal onClose={() => setIsPasswordModalOpen(false)} />
+      )}
+
+      <Toast.Provider>
+        <ToastNotification
+          open={isToastOpen}
+          onOpenChange={setIsToastOpen}
+          icon={CircleCheckBig}
+          message="회원탈퇴에 성공했습니다."
+        />
+        <ToastNotification
+          open={isToastError}
+          onOpenChange={setIsToastError}
+          icon={CircleX}
+          message="회원탈퇴에 실패했습니다."
+          isError={true}
+        />
+        <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
+      </Toast.Provider>
     </main>
   );
 }
