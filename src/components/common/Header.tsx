@@ -7,6 +7,7 @@ import * as Toast from '@radix-ui/react-toast';
 import ToastNotification from '../common/Toast';
 import useAuthStore from '../../stores/useAuthStore';
 import { CircleCheckBig, CircleX } from 'lucide-react';
+import useProfileStore from '../../stores/useProfileStore';
 
 function Header({
   onAboutClick,
@@ -22,15 +23,17 @@ function Header({
   const [isLoggedIn, setIsLoggedIn] = useState(
     useAuthStore.getState().isAuthenticated
   );
-  const [profileImage, setProfileImage] = useState<string | null>(
-    useAuthStore.getState().user?.profileImage || null
-  );
   const [isToastOpen, setIsToastOpen] = useState(false);
   const [isToastError, setIsToastError] = useState(false);
+  const profileImage = useProfileStore((state) => state.profileImage);
+  const setProfileImage = useProfileStore((state) => state.setProfileImage);
+  const adjustedProfileImage = profileImage?.startsWith('http')
+    ? profileImage
+    : `http://localhost:3000/${profileImage}`;
 
   const handleLogin = () => {
     setIsLoggedIn(true);
-    setProfileImage('/src/assets/elice.png');
+    setProfileImage('http://localhost:5173/src/assets/elice.png');
   };
 
   const handleLogout = async () => {
@@ -90,7 +93,7 @@ function Header({
               aria-label="Customise options"
             >
               <img
-                src={profileImage || '/src/assets/elice.png'}
+                src={adjustedProfileImage || '/src/assets/elice.png'}
                 alt="Elice"
                 className="rounded-full"
               />

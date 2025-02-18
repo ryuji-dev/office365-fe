@@ -1,37 +1,64 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Avatar, AlertDialog } from 'radix-ui';
-import { getProfile } from '../apis/mypageApis';
-import { ProfileResponse } from '../types/mypage';
+import { getProfile, updateProfileAvatar } from '../apis/mypageApis';
+import { ProfileResponse, UploadResponse } from '../types/mypage';
 import { User } from '../types/auth';
 import UpdatePasswordModal from '../components/mypage/UpdatePasswordModal';
+import useProfileStore from '../stores/useProfileStore';
 
 function MyPage() {
+  const queryClient = useQueryClient();
+  const [user, setUser] = useState<User | null>(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const { data: fetchedUser } = useQuery<ProfileResponse>({
     queryKey: ['profile'],
     queryFn: getProfile,
   });
-  const [user, setUser] = useState<User | null>(null);
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const setProfileImage = useProfileStore((state) => state.setProfileImage);
+
+  const mutation = useMutation<UploadResponse, Error, FormData>({
+    mutationFn: (formData: FormData) => updateProfileAvatar(formData),
+    onSuccess: (data) => {
+      const imageURL = data.user.profileImage;
+      if (imageURL) {
+        setProfileImage(imageURL);
+      } else {
+        console.error('Failed to update profile image: URL is undefined');
+      }
+
+      setUser((prevUser) => {
+        const updatedUser = prevUser
+          ? { ...prevUser, profileImage: imageURL }
+          : null;
+        return updatedUser;
+      });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    },
+    onError: (error) => {
+      console.error('프로필 아바타 업데이트에 실패했습니다.', error);
+    },
+  });
 
   const handleFileChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const file = target.files?.[0];
-
     if (file) {
-      const imageURL = URL.createObjectURL(file);
+      const imageUrl = URL.createObjectURL(file);
+      setUser((prevUser) =>
+        prevUser ? { ...prevUser, profileImage: imageUrl } : null
+      );
       const formData = new FormData();
 
-      setUser((prev) => (prev ? { ...prev, profileImage: imageURL } : null));
       formData.append('avatar', file);
+      mutation.mutate(formData);
     }
   };
 
   const handleDeleteAccount = async () => {};
 
   useEffect(() => {
-    console.log(fetchedUser);
     if (fetchedUser) {
       setUser(fetchedUser.user);
     }
@@ -69,7 +96,7 @@ function MyPage() {
             <Avatar.Root className="inline-flex size-[6.25rem] select-none items-center justify-center overflow-hidden rounded-full bg-blackA1 align-middle">
               <Avatar.Image
                 className="size-full rounded-[inherit] object-cover"
-                src={user?.profileImage || '/src/assets/elice.png'}
+                src={user?.profileImage || 'src/assets/elice.png'}
                 alt="Elice"
               />
             </Avatar.Root>

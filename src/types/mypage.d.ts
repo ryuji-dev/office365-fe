@@ -7,3 +7,13 @@ export interface ProfileResponse {
   profileImage: string;
   user: User;
 }
+
+export interface UploadResponse {
+  url: string;
+  user: User;
+}
+
+export interface ProfileState {
+  profileImage: string | null;
+  setProfileImage: (image: string | null) => void;
+}
