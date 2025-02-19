@@ -11,7 +11,6 @@ import useProfileStore from '../../stores/useProfileStore';
 
 function Header({
   onAboutClick,
-  onServiceClick,
   isSocialLoggedIn,
 }: {
   onAboutClick: () => void;
@@ -19,7 +18,6 @@ function Header({
   isSocialLoggedIn: boolean;
 }) {
   const navigate = useNavigate();
-  const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(
     useAuthStore.getState().isAuthenticated
   );
@@ -30,6 +28,7 @@ function Header({
   const adjustedProfileImage = profileImage?.startsWith('http')
     ? profileImage
     : `http://localhost:3000/${profileImage}`;
+  const [activeLink, setActiveLink] = useState<string | null>(null);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -50,6 +49,10 @@ function Header({
     }
   };
 
+  const handleServiceClick = () => {
+    setActiveLink(activeLink === 'Service' ? null : 'Service');
+  };
+
   const links: NavLink[] = [
     { to: '/', label: 'Home' },
     { to: '/about', label: 'About' },
@@ -62,21 +65,17 @@ function Header({
 
   const renderLink = ({ to, label }: NavLink) => {
     const isHome = label === 'Home';
-    const isHovered = hoveredLink !== null && hoveredLink !== 'Home';
+    const isActive = activeLink === label;
+
+    const baseClass =
+      'inline-block w-20 text-center cursor-pointer animate-slide-up transition-transform duration-300';
+    const hoverClass = 'hover:scale-[1.1]';
 
     if (label === 'About') {
       return (
         <span
           key={to}
-          className={`inline-block w-20 text-center cursor-pointer animate-slide-up ${
-            isHome
-              ? isHovered
-                ? 'font-base'
-                : 'font-bold'
-              : 'hover:font-bold cursor-pointer'
-          }`}
-          onMouseEnter={() => setHoveredLink(label)}
-          onMouseLeave={() => setHoveredLink(null)}
+          className={`${baseClass} ${hoverClass}`}
           onClick={onAboutClick}
         >
           {label}
@@ -108,7 +107,6 @@ function Header({
               <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[2.7rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
                 <Link to="/mypage">마이페이지</Link>
               </DropdownMenu.Item>
-              <DropdownMenu.Separator className="m-[5px] h-px bg-indigo-200" />
               <DropdownMenu.Item
                 className="group cursor-pointer relative flex h-8 select-none items-center rounded-sm pl-[3.1rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50"
                 onClick={handleLogout}
@@ -123,21 +121,36 @@ function Header({
 
     if (label === 'Service') {
       return (
-        <span
-          key={to}
-          className={`inline-block w-20 text-center cursor-pointer animate-slide-up ${
-            isHome
-              ? isHovered
-                ? 'font-base'
-                : 'font-bold'
-              : 'hover:font-bold cursor-pointer'
-          }`}
-          onMouseEnter={() => setHoveredLink(label)}
-          onMouseLeave={() => setHoveredLink(null)}
-          onClick={onServiceClick}
-        >
-          {label}
-        </span>
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <span
+              key={to}
+              className={`${baseClass} ${hoverClass} ${
+                isActive ? 'font-bold' : ''
+              }`}
+              onClick={handleServiceClick}
+            >
+              {label}
+            </span>
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              className="min-w-[10rem] rounded-lg bg-gray-50 p-1 shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]"
+              sideOffset={8}
+            >
+              <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[3rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
+                <Link to="/visitor">방문 접수</Link>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[3rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
+                <Link to="/parking">주차 등록</Link>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[2.5rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
+                <Link to="/meeting-room">회의실 예약</Link>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
       );
     }
 
@@ -145,15 +158,7 @@ function Header({
       <Link
         key={to}
         to={to}
-        className={`inline-block w-20 text-center cursor-pointer animate-slide-up ${
-          isHome
-            ? isHovered
-              ? 'font-base'
-              : 'font-bold'
-            : 'hover:font-bold cursor-pointer'
-        }`}
-        onMouseEnter={() => setHoveredLink(label)}
-        onMouseLeave={() => setHoveredLink(null)}
+        className={`${baseClass} ${hoverClass}`}
         onClick={isHome ? undefined : handleLogin}
       >
         {label}
@@ -190,9 +195,7 @@ function Header({
         </Link>
         <nav className="flex items-center gap-16 mr-16 font-light text-xl font-[montserrat]">
           {links.map((link) => (
-            <span key={link.to} onClick={() => setHoveredLink(null)}>
-              {renderLink(link)}
-            </span>
+            <span key={link.to}>{renderLink(link)}</span>
           ))}
         </nav>
       </section>
