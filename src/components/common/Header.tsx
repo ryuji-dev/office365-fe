@@ -6,7 +6,7 @@ import { NavLink } from '../../types/homepage';
 import * as Toast from '@radix-ui/react-toast';
 import ToastNotification from '../common/Toast';
 import useAuthStore from '../../stores/useAuthStore';
-import { CircleCheckBig, CircleX } from 'lucide-react';
+import { CircleCheckBig, CircleX, KeyRound, X } from 'lucide-react';
 import useProfileStore from '../../stores/useProfileStore';
 
 function Header({
@@ -29,6 +29,7 @@ function Header({
     ? profileImage
     : `http://localhost:3000/${profileImage}`;
   const [activeLink, setActiveLink] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -51,6 +52,15 @@ function Header({
 
   const handleServiceClick = () => {
     setActiveLink(activeLink === 'Service' ? null : 'Service');
+  };
+
+  const handleProtectedLinkClick = (event: React.MouseEvent, link: string) => {
+    if (!isLoggedIn) {
+      event.preventDefault();
+      setShowModal(true);
+    } else {
+      navigate(link);
+    }
   };
 
   const links: NavLink[] = [
@@ -139,14 +149,23 @@ function Header({
               className="min-w-[10rem] rounded-lg bg-gray-50 p-1 shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)]"
               sideOffset={8}
             >
-              <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[3rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
-                <Link to="/visitor">방문 접수</Link>
+              <DropdownMenu.Item
+                className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[3rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50"
+                onClick={(e) => handleProtectedLinkClick(e, '/visitor')}
+              >
+                방문 접수
               </DropdownMenu.Item>
-              <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[3rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
-                <Link to="/parking">주차 등록</Link>
+              <DropdownMenu.Item
+                className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[3rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50"
+                onClick={(e) => handleProtectedLinkClick(e, '/parking')}
+              >
+                주차 등록
               </DropdownMenu.Item>
-              <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[2.5rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
-                <Link to="/meeting-room">회의실 예약</Link>
+              <DropdownMenu.Item
+                className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[2.5rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50"
+                onClick={(e) => handleProtectedLinkClick(e, '/meeting-room')}
+              >
+                회의실 예약
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
@@ -168,6 +187,42 @@ function Header({
 
   return (
     <Toast.Provider>
+      {showModal && (
+        <div className="fixed inset-0 bg-zinc-900/50 flex justify-center items-center z-50">
+          <div
+            className="bg-gray-50 p-4 rounded-lg relative border-2 border-gray-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Link
+              to="/"
+              className="absolute top-2 right-2 cursor-pointer"
+              onClick={() => setShowModal(false)}
+            >
+              <X />
+            </Link>
+            <div className="p-4">
+              <h2 className="flex items-center text-xl font-bold gap-2">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-yellow-500">
+                  <KeyRound className="text-gray-50" />
+                </div>
+                로그인이 필요합니다
+              </h2>
+              <p className="text-gray-500">
+                이 페이지에 접근하려면{' '}
+                <span className="text-indigo-500">로그인</span>이 필요합니다.
+              </p>
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                className="bg-indigo-500 text-gray-50 px-4 py-2 rounded-lg cursor-pointer"
+                onClick={() => navigate('/login')}
+              >
+                로그인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <ToastNotification
         open={isToastOpen}
         onOpenChange={setIsToastOpen}
@@ -179,6 +234,7 @@ function Header({
         onOpenChange={setIsToastError}
         icon={CircleX}
         message="로그아웃에 실패했습니다."
+        isError={true}
       />
       <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
 
