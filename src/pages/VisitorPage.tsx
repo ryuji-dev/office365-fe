@@ -98,7 +98,7 @@ function VisitorPage() {
             </p>
             <button
               onClick={() => navigate('/select-department')}
-              className="flex items-center gap-2 bg-indigo-500 text-gray-50 px-6 py-2.5 mt-4 rounded-lg hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-300 cursor-pointer animate-slide-up"
+              className="flex items-center gap-2 bg-indigo-500 text-gray-50 px-6 py-3 mt-4 rounded-lg hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-300 cursor-pointer animate-slide-up"
             >
               <PenLine className="w-5 h-5" />
               접수하기
