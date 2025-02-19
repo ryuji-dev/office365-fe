@@ -6,6 +6,8 @@ import TermsPage from './pages/TermsPage';
 import SignupPage from './pages/SignupPage';
 import MyPage from './pages/MyPage';
 import VisitorPage from './pages/VisitorPage';
+import SelectDepartmentPage from './pages/SelectDepartmentPage';
+import RegistrationPage from './pages/RegistrationPage';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/mypage" element={<MyPage />} />
       <Route path="/visitor" element={<VisitorPage />} />
+      <Route path="/select-department" element={<SelectDepartmentPage />} />
+      <Route path="/registration" element={<RegistrationPage />} />
     </Routes>
   );
 }

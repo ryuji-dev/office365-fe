@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Tabs } from 'radix-ui';
 import Pagination from '@mui/material/Pagination';
 import { ChevronRight, PenLine } from 'lucide-react';
@@ -45,6 +45,7 @@ function VisitEntry({
 }
 
 function VisitorPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [tab, setTab] = useState('tab1');
   const itemsPerPage = 5;
@@ -95,7 +96,10 @@ function VisitorPage() {
             <p className="text-gray-500 ml-1 animate-slide-up">
               귀하의 방문을 환영합니다.
             </p>
-            <button className="flex items-center gap-2 bg-indigo-500 text-gray-50 px-6 py-2.5 mt-4 rounded-lg hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-300 cursor-pointer animate-slide-up">
+            <button
+              onClick={() => navigate('/select-department')}
+              className="flex items-center gap-2 bg-indigo-500 text-gray-50 px-6 py-2.5 mt-4 rounded-lg hover:bg-indigo-600 active:bg-indigo-700 transition-all duration-300 cursor-pointer animate-slide-up"
+            >
               <PenLine className="w-5 h-5" />
               접수하기
             </button>

@@ -207,7 +207,7 @@ function Header({
                 </div>
                 로그인이 필요합니다
               </h2>
-              <p className="text-gray-500">
+              <p className="text-gray-500 mt-1">
                 이 페이지에 접근하려면{' '}
                 <span className="text-indigo-500">로그인</span>이 필요합니다.
               </p>
