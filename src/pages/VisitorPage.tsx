@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, PenLine } from 'lucide-react';
 import { Tabs } from 'radix-ui';
+import Pagination from '@mui/material/Pagination';
+import { ChevronRight, PenLine } from 'lucide-react';
 
 function VisitEntry({
   status,
@@ -18,7 +20,7 @@ function VisitEntry({
   };
 
   return (
-    <div className="flex justify-between text-zinc-900 px-4">
+    <div className="flex justify-between text-zinc-900 px-4 cursor-pointer">
       <div className="flex items-center gap-8">
         <div className="flex justify-center w-20">
           <span
@@ -36,13 +38,35 @@ function VisitEntry({
       <div className="flex items-center gap-8 text-gray-500">
         <p>{department}</p>
         <p>{date}</p>
-        <ChevronRight />
+        <ChevronRight className="text-zinc-900" />
       </div>
     </div>
   );
 }
 
 function VisitorPage() {
+  const [page, setPage] = useState(1);
+  const [tab, setTab] = useState('tab1');
+  const itemsPerPage = 5;
+
+  // 예시 데이터 배열
+  const visitEntries = Array.from({ length: 12 }, (_, index) => ({
+    status: index % 2 === 0 ? '접수중' : '접수',
+    date: '2025.02.19',
+    department: '엘리스트랙',
+  }));
+
+  const totalItems = visitEntries.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [tab]);
+
+  const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
+
   return (
     <section className="bg-zinc-900 flex flex-col justify-center mx-auto items-center h-full">
       <div className="bg-[url('./src/assets/backgrounds/body.png')] flex flex-col w-[90rem] h-[100vh] overflow-y-auto">
@@ -85,6 +109,7 @@ function VisitorPage() {
             <Tabs.Root
               className="flex w-[68.75rem] flex-col"
               defaultValue="tab1"
+              onValueChange={(value) => setTab(value)}
             >
               <Tabs.List
                 className="flex shrink-0 border-b border-gray-300"
@@ -104,38 +129,60 @@ function VisitorPage() {
                 </Tabs.Trigger>
               </Tabs.List>
               <Tabs.Content className="grow outline-none" value="tab1">
-                {[...Array(6)].map((_, index) => (
-                  <VisitEntry
-                    key={index}
-                    status={index % 2 === 0 ? '접수중' : '접수'}
-                    date="2025.02.19"
-                    department="엘리스트랙"
+                <div className="flex flex-col min-h-[15.6rem]">
+                  {visitEntries
+                    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                    .map((entry, index) => (
+                      <VisitEntry
+                        key={index}
+                        status={entry.status}
+                        date={entry.date}
+                        department={entry.department}
+                      />
+                    ))}
+                </div>
+                <div className="flex justify-center w-full mt-4">
+                  <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={handleChange}
                   />
-                ))}
+                </div>
               </Tabs.Content>
               <Tabs.Content className="grow outline-none" value="tab2">
-                {[...Array(6)].map((_, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between text-zinc-900 px-4"
-                  >
-                    <div className="flex items-center gap-8">
-                      <div className="flex justify-center w-20">
-                        <span className="bg-green-200 text-sm text-green-600 rounded-full px-2 py-[0.063rem]">
-                          처리완료
-                        </span>
+                <div className="flex flex-col min-h-[15.6rem]">
+                  {visitEntries
+                    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                    .map((entry, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between text-zinc-900 px-4 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-8">
+                          <div className="flex justify-center w-20">
+                            <span className="bg-green-200 text-sm text-green-600 rounded-full px-2 py-[0.063rem]">
+                              처리완료
+                            </span>
+                          </div>
+                          <p className="flex items-center h-[3.125rem]">
+                            4월 30일에 {entry.department} 부서 방문 접수합니다.
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-8 text-gray-500">
+                          <p>{entry.department}</p>
+                          <p>{entry.date}</p>
+                          <ChevronRight />
+                        </div>
                       </div>
-                      <p className="flex items-center h-[3.125rem]">
-                        4월 30일에 엘리스트랙 부서 방문 접수합니다.
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-8 text-gray-500">
-                      <p>엘리스트랙</p>
-                      <p>2025.02.19</p>
-                      <ChevronRight />
-                    </div>
-                  </div>
-                ))}
+                    ))}
+                </div>
+                <div className="flex justify-center w-full mt-4">
+                  <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={handleChange}
+                  />
+                </div>
               </Tabs.Content>
             </Tabs.Root>
           </div>
