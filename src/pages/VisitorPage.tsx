@@ -175,7 +175,7 @@ function VisitorPage() {
                         <div className="flex items-center gap-8 text-gray-500">
                           <p>{entry.department}</p>
                           <p>{entry.date}</p>
-                          <ChevronRight />
+                          <ChevronRight className="text-zinc-900" />
                         </div>
                       </div>
                     ))}

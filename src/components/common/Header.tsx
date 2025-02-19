@@ -7,7 +7,8 @@ import * as Toast from '@radix-ui/react-toast';
 import ToastNotification from '../common/Toast';
 import useAuthStore from '../../stores/useAuthStore';
 import { CircleCheckBig, CircleX, KeyRound, X } from 'lucide-react';
-import useProfileStore from '../../stores/useProfileStore';
+import { useQuery } from '@tanstack/react-query';
+import { getProfile } from '../../apis/mypageApis';
 
 function Header({
   onAboutClick,
@@ -23,17 +24,21 @@ function Header({
   );
   const [isToastOpen, setIsToastOpen] = useState(false);
   const [isToastError, setIsToastError] = useState(false);
-  const profileImage = useProfileStore((state) => state.profileImage);
-  const setProfileImage = useProfileStore((state) => state.setProfileImage);
-  const adjustedProfileImage = profileImage?.startsWith('http')
-    ? profileImage
-    : `http://localhost:3000/${profileImage}`;
+  const { data: profileData } = useQuery({
+    queryKey: ['profile'],
+    queryFn: getProfile,
+  });
+  const profileImage = profileData?.user.profileImage;
+  const adjustedProfileImage = profileImage
+    ? profileImage.startsWith('http')
+      ? profileImage
+      : `http://localhost:3000/${profileImage}`
+    : 'http://localhost:5173/src/assets/elice.png';
   const [activeLink, setActiveLink] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
-    setProfileImage('http://localhost:5173/src/assets/elice.png');
   };
 
   const handleLogout = async () => {

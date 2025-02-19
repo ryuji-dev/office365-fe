@@ -12,7 +12,6 @@ import {
 import { ProfileResponse, UploadResponse } from '../types/mypage';
 import { User } from '../types/auth';
 import UpdatePasswordModal from '../components/mypage/UpdatePasswordModal';
-import useProfileStore from '../stores/useProfileStore';
 import useAuthStore from '../stores/useAuthStore';
 import { CircleCheckBig, CircleX } from 'lucide-react';
 
@@ -25,7 +24,6 @@ function MyPage() {
     queryKey: ['profile'],
     queryFn: getProfile,
   });
-  const setProfileImage = useProfileStore((state) => state.setProfileImage);
   const [isToastOpen, setIsToastOpen] = useState(false);
   const [isToastError, setIsToastError] = useState(false);
 
@@ -33,11 +31,6 @@ function MyPage() {
     mutationFn: (formData: FormData) => updateProfileAvatar(formData),
     onSuccess: (data) => {
       const imageURL = data.user.profileImage;
-      if (imageURL) {
-        setProfileImage(imageURL);
-      } else {
-        console.error('Failed to update profile image: URL is undefined');
-      }
 
       setUser((prevUser) => {
         const updatedUser = prevUser
@@ -124,7 +117,7 @@ function MyPage() {
             <p className="text-2xl text-zinc-600 font-bold">프로필 사진</p>
             <Avatar.Root className="inline-flex size-[6.25rem] select-none items-center justify-center overflow-hidden rounded-full bg-blackA1 align-middle">
               <Avatar.Image
-                className="size-full rounded-[inherit] object-cover"
+                className="rounded-full items-center justify-center overflow-hidden"
                 src={user?.profileImage || 'src/assets/elice.png'}
                 alt="Elice"
               />

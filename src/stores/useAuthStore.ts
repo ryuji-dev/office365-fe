@@ -21,13 +21,6 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      onRehydrateStorage: () => (state) => {
-        const token = cookies.get('token');
-        if (!token && state) {
-          state.isAuthenticated = false;
-          state.user = null;
-        }
-      },
     }
   )
 );
