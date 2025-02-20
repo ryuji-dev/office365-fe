@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { z } from 'zod';
+import { VisitorInfo } from '../types/visitor';
+import { postVisitorInfo } from '../apis/visitorApis';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: '이름을 입력해주세요.' }),
@@ -51,6 +54,16 @@ function RegistrationPage() {
     visitPurpose: '',
   });
 
+  const mutation = useMutation<void, Error, VisitorInfo>({
+    mutationFn: (data: VisitorInfo) => postVisitorInfo(data),
+    onSuccess: () => {
+      navigate('/visitor');
+    },
+    onError: (error: Error) => {
+      console.error('방문자 정보 전송 중 에러가 발생했습니다.', error);
+    },
+  });
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -89,6 +102,12 @@ function RegistrationPage() {
       } else {
         setEndDate(date);
       }
+    }
+  };
+
+  const handleSubmit = () => {
+    if (isFormValid()) {
+      mutation.mutate(formData);
     }
   };
 
@@ -226,11 +245,7 @@ function RegistrationPage() {
             이전 단계
           </button>
           <button
-            onClick={() => {
-              if (isFormValid()) {
-                navigate('/visitor');
-              }
-            }}
+            onClick={handleSubmit}
             className={`bg-indigo-500 text-gray-50 px-6 py-3 rounded-lg transition-all duration-300 ${
               !isFormValid()
                 ? 'opacity-50 cursor-not-allowed'
