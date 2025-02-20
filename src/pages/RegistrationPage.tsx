@@ -4,9 +4,12 @@ import { useMutation } from '@tanstack/react-query';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { z } from 'zod';
+import * as Toast from '@radix-ui/react-toast';
+import ToastNotification from '../components/common/Toast';
 import { VisitorInfo } from '../types/visitor';
 import { postVisitorInfo } from '../apis/visitorApis';
 import useDepartmentStore from '../stores/useDepartmentStore';
+import { CircleCheckBig, CircleX } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: '이름을 입력해주세요.' }),
@@ -55,13 +58,19 @@ function RegistrationPage() {
     visitTarget: '',
     visitPurpose: '',
   });
+  const [isToastOpen, setIsToastOpen] = useState(false);
+  const [isToastError, setIsToastError] = useState(false);
 
   const mutation = useMutation<void, Error, VisitorInfo>({
     mutationFn: (data: VisitorInfo) => postVisitorInfo(data),
     onSuccess: () => {
-      navigate('/visitor');
+      setIsToastOpen(true);
+      setTimeout(() => {
+        navigate('/visitor');
+      }, 1000);
     },
     onError: (error: Error) => {
+      setIsToastError(true);
       console.error('방문자 정보 전송 중 에러가 발생했습니다.', error);
     },
   });
@@ -259,6 +268,23 @@ function RegistrationPage() {
           </button>
         </div>
       </div>
+
+      <Toast.Provider>
+        <ToastNotification
+          open={isToastOpen}
+          onOpenChange={setIsToastOpen}
+          icon={CircleCheckBig}
+          message="방문 접수가 완료되었습니다."
+        />
+        <ToastNotification
+          open={isToastError}
+          onOpenChange={setIsToastError}
+          icon={CircleX}
+          message="방문 접수 중 오류가 발생했습니다."
+          isError={true}
+        />
+        <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
+      </Toast.Provider>
     </section>
   );
 }

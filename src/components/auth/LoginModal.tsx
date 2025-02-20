@@ -141,6 +141,7 @@ function LoginModal() {
           />
         </div>
       </div>
+
       <Toast.Provider>
         <ToastNotification
           open={isToastOpen}
