@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { z } from 'zod';
 import { VisitorInfo } from '../types/visitor';
 import { postVisitorInfo } from '../apis/visitorApis';
+import useDepartmentStore from '../stores/useDepartmentStore';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: '이름을 입력해주세요.' }),
@@ -43,6 +44,7 @@ const formSchema = z.object({
 
 function RegistrationPage() {
   const navigate = useNavigate();
+  const department = useDepartmentStore((state) => state.department);
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [formData, setFormData] = useState<z.infer<typeof formSchema>>({
@@ -107,7 +109,7 @@ function RegistrationPage() {
 
   const handleSubmit = () => {
     if (isFormValid()) {
-      mutation.mutate(formData);
+      mutation.mutate({ ...formData, department });
     }
   };
 

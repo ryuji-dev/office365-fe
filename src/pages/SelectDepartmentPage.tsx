@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
-import { postDepartmentInfo } from '../apis/visitorApis';
-import { DepartmentInfo } from '../types/visitor';
+import useDepartmentStore from '../stores/useDepartmentStore';
 
 function SelectDepartmentPage() {
   const navigate = useNavigate();
+  const setDepartment = useDepartmentStore((state) => state.setDepartment);
   const [selectedDepartment, setSelectedDepartment] = useState<number | null>(
     null
   );
@@ -43,22 +42,10 @@ function SelectDepartmentPage() {
     },
   ];
 
-  const mutation = useMutation<void, Error, DepartmentInfo>({
-    mutationFn: (data: DepartmentInfo) => postDepartmentInfo(data),
-    onSuccess: () => {
-      navigate('/registration');
-    },
-    onError: (error: Error) => {
-      console.error('부서 정보 전송 중 에러가 발생했습니다.', error);
-    },
-  });
-
   const handleNextStep = () => {
     if (selectedDepartment !== null) {
-      const departmentInfo: DepartmentInfo = {
-        department: departments[selectedDepartment].name,
-      };
-      mutation.mutate(departmentInfo);
+      setDepartment(departments[selectedDepartment].name);
+      navigate('/registration');
     }
   };
 

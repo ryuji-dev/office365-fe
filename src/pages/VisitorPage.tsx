@@ -1,48 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'radix-ui';
 import Pagination from '@mui/material/Pagination';
 import { ChevronRight, PenLine } from 'lucide-react';
-
-function VisitEntry({
-  status,
-  date,
-  department,
-}: {
-  status: string;
-  date: string;
-  department: string;
-}) {
-  const statusStyles = {
-    접수중: 'bg-orange-200 text-orange-500',
-    접수: 'bg-blue-200 text-blue-500',
-    처리완료: 'bg-green-200 text-green-600',
-  };
-
-  return (
-    <div className="flex justify-between text-zinc-900 px-4 cursor-pointer">
-      <div className="flex items-center gap-8">
-        <div className="flex justify-center w-20">
-          <span
-            className={`${
-              statusStyles[status as keyof typeof statusStyles]
-            } text-sm rounded-full px-2 py-[0.063rem]`}
-          >
-            {status}
-          </span>
-        </div>
-        <p className="flex items-center h-[3.125rem]">
-          4월 30일에 {department} 부서 방문 접수합니다.
-        </p>
-      </div>
-      <div className="flex items-center gap-8 text-gray-500">
-        <p>{department}</p>
-        <p>{date}</p>
-        <ChevronRight className="text-zinc-900" />
-      </div>
-    </div>
-  );
-}
+import { getVisitors } from '../apis/visitorApis';
+import { VisitorData } from '../types/visitor';
 
 function VisitorPage() {
   const navigate = useNavigate();
@@ -50,15 +13,42 @@ function VisitorPage() {
   const [tab, setTab] = useState('tab1');
   const itemsPerPage = 5;
 
-  // 예시 데이터 배열
-  const visitEntries = Array.from({ length: 12 }, (_, index) => ({
-    status: index % 2 === 0 ? '접수중' : '접수',
-    date: '2025.02.19',
-    department: '엘리스트랙',
-  }));
+  const { data: visitors = [] } = useQuery<VisitorData[]>({
+    queryKey: ['visitors'],
+    queryFn: async () => {
+      const response = await getVisitors();
+      const visitorMap = new Map<string, VisitorData>();
 
-  const totalItems = visitEntries.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+      Object.values(response).forEach((visitor) => {
+        if (!visitorMap.has(visitor._id)) {
+          const formattedVisitDate = new Date(visitor.visitDate)
+            .toISOString()
+            .split('T')[0];
+          visitorMap.set(visitor._id, {
+            ...visitor,
+            visitDate: formattedVisitDate,
+          });
+        }
+      });
+
+      const sortedVisitors = Array.from(visitorMap.values()).sort((a, b) => {
+        return (
+          new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
+        );
+      });
+
+      return sortedVisitors;
+    },
+  });
+
+  const totalItemsTab1 = visitors.filter(
+    (visitor) => visitor.status !== '처리완료'
+  ).length;
+  const totalItemsTab2 = visitors.filter(
+    (visitor) => visitor.status === '처리완료'
+  ).length;
+  const totalPagesTab1 = Math.ceil(totalItemsTab1 / itemsPerPage);
+  const totalPagesTab2 = Math.ceil(totalItemsTab2 / itemsPerPage);
 
   useEffect(() => {
     setPage(1);
@@ -67,6 +57,16 @@ function VisitorPage() {
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
+
+  // statusStyles 정의
+  const statusStyles = {
+    접수중: 'bg-orange-200 text-orange-500',
+    접수: 'bg-blue-200 text-blue-500',
+    처리완료: 'bg-green-200 text-green-600',
+  };
+
+  // 사용자가 관리자임을 결정하는 boolean 값
+  const isAdmin = false; // 실제 관리자 상태를 결정하는 로직으로 대체
 
   return (
     <section className="bg-zinc-900 flex flex-col justify-center mx-auto items-center h-full">
@@ -134,47 +134,45 @@ function VisitorPage() {
               </Tabs.List>
               <Tabs.Content className="grow outline-none" value="tab1">
                 <div className="flex flex-col min-h-[15.6rem]">
-                  {visitEntries
+                  {visitors
                     .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-                    .map((entry, index) => (
-                      <VisitEntry
-                        key={index}
-                        status={entry.status}
-                        date={entry.date}
-                        department={entry.department}
-                      />
-                    ))}
-                </div>
-                <div className="flex justify-center w-full mt-4">
-                  <Pagination
-                    count={totalPages}
-                    page={page}
-                    onChange={handleChange}
-                  />
-                </div>
-              </Tabs.Content>
-              <Tabs.Content className="grow outline-none" value="tab2">
-                <div className="flex flex-col min-h-[15.6rem]">
-                  {visitEntries
-                    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-                    .map((entry, index) => (
+                    .map((visitor) => (
                       <div
-                        key={index}
+                        key={visitor._id}
                         className="flex justify-between text-zinc-900 px-4 cursor-pointer"
                       >
                         <div className="flex items-center gap-8">
                           <div className="flex justify-center w-20">
-                            <span className="bg-green-200 text-sm text-green-600 rounded-full px-2 py-[0.063rem]">
-                              처리완료
+                            <span
+                              className={`${
+                                statusStyles[
+                                  visitor.status as keyof typeof statusStyles
+                                ]
+                              } text-sm rounded-full px-2 py-[0.063rem]`}
+                            >
+                              {visitor.status}
                             </span>
                           </div>
                           <p className="flex items-center h-[3.125rem]">
-                            4월 30일에 {entry.department} 부서 방문 접수합니다.
+                            {new Date(visitor.visitDate).toLocaleDateString(
+                              'ko-KR',
+                              {
+                                month: 'long',
+                                day: 'numeric',
+                              }
+                            )}
+                            에 {visitor.department} 부서 방문 접수합니다.
                           </p>
                         </div>
                         <div className="flex items-center gap-8 text-gray-500">
-                          <p>{entry.department}</p>
-                          <p>{entry.date}</p>
+                          <p>{visitor.department}</p>
+                          <p>
+                            {
+                              new Date(visitor.visitDate)
+                                .toISOString()
+                                .split('T')[0]
+                            }
+                          </p>
                           <ChevronRight className="text-zinc-900" />
                         </div>
                       </div>
@@ -182,7 +180,55 @@ function VisitorPage() {
                 </div>
                 <div className="flex justify-center w-full mt-4">
                   <Pagination
-                    count={totalPages}
+                    count={totalPagesTab1}
+                    page={page}
+                    onChange={handleChange}
+                  />
+                </div>
+              </Tabs.Content>
+              <Tabs.Content className="grow outline-none" value="tab2">
+                {isAdmin ? (
+                  <div className="flex flex-col min-h-[15.6rem]">
+                    {visitors
+                      .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                      .map((visitor, index) => (
+                        <div
+                          key={index}
+                          className="flex justify-between text-zinc-900 px-4 cursor-pointer"
+                        >
+                          <div className="flex items-center gap-8">
+                            <div className="flex justify-center w-20">
+                              <span className="bg-green-200 text-sm text-green-600 rounded-full px-2 py-[0.063rem]">
+                                처리완료
+                              </span>
+                            </div>
+                            <p className="flex items-center h-[3.125rem]">
+                              {new Date(visitor.visitDate).toLocaleDateString(
+                                'ko-KR'
+                              )}
+                              에 {visitor.department} 부서 방문 접수합니다.
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-8 text-gray-500">
+                            <p>{visitor.department}</p>
+                            <p>
+                              {new Date(visitor.visitDate).toLocaleDateString(
+                                'ko-KR'
+                              )}
+                            </p>
+                            <ChevronRight className="text-zinc-900" />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <p className="flex items-center justify-center text-center text-gray-500 h-[15.6rem]">
+                    관리자의 승인 후에 처리완료 내역을 확인할 수 있습니다.
+                  </p>
+                )}
+                <div className="flex justify-center w-full mt-4">
+                  <Pagination
+                    count={totalPagesTab2}
                     page={page}
                     onChange={handleChange}
                   />
