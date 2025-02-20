@@ -2,12 +2,104 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { z } from 'zod';
+
+const formSchema = z.object({
+  name: z.string().min(1, { message: '이름을 입력해주세요.' }),
+  email: z.string().email({ message: '이메일 형식으로 입력해주세요.' }),
+  phone: z
+    .string()
+    .refine(
+      (value) => {
+        const cleanedValue = value.replace(/-/g, '');
+        return cleanedValue.length === 11;
+      },
+      {
+        message: '연락처는 11자리 숫자여야 합니다.',
+      }
+    )
+    .refine(
+      (value) =>
+        /^\d{3}-\d{4}-\d{4}$/.test(value) ||
+        value.replace(/-/g, '').length === 11,
+      {
+        message: '연락처 형식이 올바르지 않습니다.',
+      }
+    ),
+  visitDate: z.date().refine(
+    (date) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return date >= today;
+    },
+    { message: '방문 날짜를 선택해주세요.' }
+  ),
+  visitTarget: z.string().min(1, { message: '방문 대상자를 입력해주세요.' }),
+  visitPurpose: z.string().min(1, { message: '방문 목적을 입력해주세요.' }),
+});
 
 function RegistrationPage() {
   const navigate = useNavigate();
-  const [visitor] = useState<number | null>(null);
-  const [startDate, setStartDate] = useState<Date | undefined>(new Date());
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [formData, setFormData] = useState<z.infer<typeof formSchema>>({
+    name: '',
+    email: '',
+    phone: '',
+    visitDate: new Date(),
+    visitTarget: '',
+    visitPurpose: '',
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+
+    // 연락처 입력 처리
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '');
+      let formattedValue = numericValue;
+
+      if (numericValue.length > 3) {
+        formattedValue = `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
+      }
+      if (numericValue.length > 7) {
+        formattedValue = `${numericValue.slice(0, 3)}-${numericValue.slice(
+          3,
+          7
+        )}-${numericValue.slice(7, 11)}`;
+      }
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: formattedValue,
+      }));
+    }
+  };
+
+  const handleDateChange = (date: Date | null, isStart: boolean) => {
+    if (date) {
+      if (isStart) {
+        setStartDate(date);
+        setFormData({ ...formData, visitDate: date });
+      } else {
+        setEndDate(date);
+      }
+    }
+  };
+
+  const isFormValid = () => {
+    try {
+      formSchema.parse(formData);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   return (
     <section className="bg-zinc-900 flex flex-col justify-center mx-auto items-center h-full">
@@ -50,8 +142,8 @@ function RegistrationPage() {
               <input
                 type="text"
                 name="name"
-                // value={formData.name}
-                // onChange={handleChange}
+                value={formData.name}
+                onChange={handleChange}
                 className="w-full h-10 bg-gray-50 border-2 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500 border-gray-300"
               />
               <label htmlFor="email" className="text-gray-500">
@@ -60,8 +152,8 @@ function RegistrationPage() {
               <input
                 type="text"
                 name="email"
-                // value={formData.email}
-                // onChange={handleChange}
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full h-10 bg-gray-50 border-2 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500 border-gray-300"
               />
               <label htmlFor="phone" className="text-gray-500">
@@ -70,8 +162,8 @@ function RegistrationPage() {
               <input
                 type="text"
                 name="phone"
-                // value={formData.phone}
-                // onChange={handleChange}
+                value={formData.phone}
+                onChange={handleChange}
                 className="w-full h-10 bg-gray-50 border-2 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500 border-gray-300"
               />
             </div>
@@ -82,17 +174,18 @@ function RegistrationPage() {
               <div className="flex gap-2 w-[30%]">
                 <DatePicker
                   selected={startDate}
-                  onChange={(date) => setStartDate(date ?? undefined)}
+                  onChange={(date) => handleDateChange(date, true)}
                   selectsStart
                   startDate={startDate}
                   endDate={endDate}
+                  minDate={new Date()}
                   dateFormat="yyyy/MM/dd"
                   className="flex w-28 h-10 bg-gray-50 border-2 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500 border-gray-300"
                 />
                 <p className="flex items-center">~</p>
                 <DatePicker
                   selected={endDate}
-                  onChange={(date) => setEndDate(date ?? undefined)}
+                  onChange={(date) => handleDateChange(date, false)}
                   selectsEnd
                   startDate={startDate}
                   endDate={endDate}
@@ -107,9 +200,20 @@ function RegistrationPage() {
               <input
                 type="text"
                 name="visitTarget"
-                // value={formData.visitTarget}
-                // onChange={handleChange}
+                value={formData.visitTarget}
+                onChange={handleChange}
                 className="w-full h-10 bg-gray-50 border-2 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500 border-gray-300"
+              />
+            </div>
+            <div className="flex flex-col gap-2 w-[84%] mt-[-8.5rem]">
+              <label htmlFor="visitPurpose" className="text-gray-500">
+                방문 목적
+              </label>
+              <textarea
+                name="visitPurpose"
+                value={formData.visitPurpose}
+                onChange={handleChange}
+                className="w-full h-30 bg-gray-50 border-2 rounded-lg p-2 focus:outline-none focus:ring-indigo-500 focus:ring-1 focus:border-indigo-500 border-gray-300"
               />
             </div>
           </form>
@@ -122,13 +226,17 @@ function RegistrationPage() {
             이전 단계
           </button>
           <button
-            onClick={() => navigate('/visitor')}
+            onClick={() => {
+              if (isFormValid()) {
+                navigate('/visitor');
+              }
+            }}
             className={`bg-indigo-500 text-gray-50 px-6 py-3 rounded-lg transition-all duration-300 ${
-              visitor === null
+              !isFormValid()
                 ? 'opacity-50 cursor-not-allowed'
                 : 'hover:bg-indigo-600 active:bg-indigo-700 cursor-pointer'
             }`}
-            disabled={visitor === null}
+            disabled={!isFormValid()}
           >
             다음 단계
           </button>
