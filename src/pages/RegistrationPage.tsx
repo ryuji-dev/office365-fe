@@ -117,7 +117,7 @@ function RegistrationPage() {
           </Link>
           <div className="flex items-center gap-16 mr-16 font-bold text-xl font-[montserrat] animate-slide-up">
             <Link to="/select-department">
-              <p>Select Department</p>
+              <p>Registration</p>
             </Link>
           </div>
         </header>
@@ -218,7 +218,7 @@ function RegistrationPage() {
             </div>
           </form>
         </div>
-        <div className="flex justify-end w-[64rem] ml-[10rem] mt-20 gap-4">
+        <div className="flex justify-end w-[64rem] ml-[10rem] mt-26 gap-4">
           <button
             onClick={() => navigate('/select-department')}
             className="bg-gray-400 hover:bg-gray-500 active:bg-gray-600 text-gray-50 px-6 py-3 rounded-lg transition-all duration-300 cursor-pointer"

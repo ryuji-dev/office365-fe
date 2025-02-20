@@ -1,5 +1,8 @@
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
+import { postDepartmentInfo } from '../apis/visitorApis';
+import { DepartmentInfo } from '../types/visitor';
 
 function SelectDepartmentPage() {
   const navigate = useNavigate();
@@ -39,6 +42,25 @@ function SelectDepartmentPage() {
       imgWidth: '14rem',
     },
   ];
+
+  const mutation = useMutation<void, Error, DepartmentInfo>({
+    mutationFn: (data: DepartmentInfo) => postDepartmentInfo(data),
+    onSuccess: () => {
+      navigate('/registration');
+    },
+    onError: (error: Error) => {
+      console.error('부서 정보 전송 중 에러가 발생했습니다.', error);
+    },
+  });
+
+  const handleNextStep = () => {
+    if (selectedDepartment !== null) {
+      const departmentInfo: DepartmentInfo = {
+        department: departments[selectedDepartment].name,
+      };
+      mutation.mutate(departmentInfo);
+    }
+  };
 
   return (
     <section className="bg-zinc-900 flex flex-col justify-center mx-auto items-center h-full">
@@ -107,7 +129,7 @@ function SelectDepartmentPage() {
             이전 단계
           </button>
           <button
-            onClick={() => navigate('/registration')}
+            onClick={handleNextStep}
             className={`bg-indigo-500 text-gray-50 px-6 py-3 rounded-lg transition-all duration-300 ${
               selectedDepartment === null
                 ? 'opacity-50 cursor-not-allowed'
