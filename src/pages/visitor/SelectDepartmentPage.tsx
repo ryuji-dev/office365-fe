@@ -108,7 +108,7 @@ function SelectDepartmentPage() {
             </div>
           ))}
         </div>
-        <div className="flex justify-end w-[64rem] ml-[10rem] mt-20 gap-4">
+        <div className="flex justify-end w-[64rem] ml-[10rem] mt-20 gap-4 mb-8">
           <button
             onClick={() => navigate('/visitor')}
             className="bg-gray-400 hover:bg-gray-500 active:bg-gray-600 text-gray-50 px-6 py-3 rounded-lg transition-all duration-300 cursor-pointer"

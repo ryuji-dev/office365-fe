@@ -21,19 +21,18 @@ function VisitorPage() {
 
       Object.values(response).forEach((visitor) => {
         if (!visitorMap.has(visitor._id)) {
-          const formattedVisitDate = new Date(visitor.visitDate)
-            .toISOString()
-            .split('T')[0];
+          const formattedVisitDate = new Date(visitor.visitStartDate);
           visitorMap.set(visitor._id, {
             ...visitor,
-            visitDate: formattedVisitDate,
+            visitStartDate: formattedVisitDate,
           });
         }
       });
 
       const sortedVisitors = Array.from(visitorMap.values()).sort((a, b) => {
         return (
-          new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
+          new Date(a.visitStartDate).getTime() -
+          new Date(b.visitStartDate).getTime()
         );
       });
 
@@ -144,7 +143,7 @@ function VisitorPage() {
                       <div
                         key={visitor._id}
                         onClick={() => handleVisitorClick(visitor._id)}
-                        className="flex justify-between text-zinc-900 px-4 cursor-pointer"
+                        className="flex justify-between text-zinc-900 hover:bg-indigo-950/10 transition-all duration-300 px-4 cursor-pointer"
                       >
                         <div className="flex items-center gap-8">
                           <div className="flex justify-center w-20">
@@ -159,13 +158,12 @@ function VisitorPage() {
                             </span>
                           </div>
                           <p className="flex items-center h-[3.125rem]">
-                            {new Date(visitor.visitDate).toLocaleDateString(
-                              'ko-KR',
-                              {
-                                month: 'long',
-                                day: 'numeric',
-                              }
-                            )}
+                            {new Date(
+                              visitor.visitStartDate
+                            ).toLocaleDateString('ko-KR', {
+                              month: 'long',
+                              day: 'numeric',
+                            })}
                             에 {visitor.department} 부서 방문 접수합니다.
                           </p>
                         </div>
@@ -173,7 +171,7 @@ function VisitorPage() {
                           <p>{visitor.department}</p>
                           <p>
                             {
-                              new Date(visitor.visitDate)
+                              new Date(visitor.visitStartDate)
                                 .toISOString()
                                 .split('T')[0]
                             }
@@ -208,18 +206,18 @@ function VisitorPage() {
                               </span>
                             </div>
                             <p className="flex items-center h-[3.125rem]">
-                              {new Date(visitor.visitDate).toLocaleDateString(
-                                'ko-KR'
-                              )}
+                              {new Date(
+                                visitor.visitStartDate
+                              ).toLocaleDateString('ko-KR')}
                               에 {visitor.department} 부서 방문 접수합니다.
                             </p>
                           </div>
                           <div className="flex items-center gap-8 text-gray-500">
                             <p>{visitor.department}</p>
                             <p>
-                              {new Date(visitor.visitDate).toLocaleDateString(
-                                'ko-KR'
-                              )}
+                              {new Date(
+                                visitor.visitStartDate
+                              ).toLocaleDateString('ko-KR')}
                             </p>
                             <ChevronRight className="text-zinc-900" />
                           </div>

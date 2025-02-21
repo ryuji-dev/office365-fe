@@ -13,3 +13,11 @@ export const getVisitors = async (): Promise<VisitorData[]> => {
   );
   return response.data.visitors;
 };
+
+// 특정 방문자 정보 조회 API
+export const getVisitorById = async (_id: string): Promise<VisitorData> => {
+  const response = await axiosInstance.get<{ visitor: VisitorData }>(
+    `/visitor/visitors/${_id}`
+  );
+  return response.data.visitor;
+};

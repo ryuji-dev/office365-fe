@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { z } from 'zod';
 import * as Toast from '@radix-ui/react-toast';
 import ToastNotification from '../../components/common/Toast';
-import { VisitorInfo } from '../../types/visitor';
-import { postVisitorInfo } from '../../apis/visitorApis';
+import { VisitorData, VisitorInfo } from '../../types/visitor';
+import { getVisitorById, postVisitorInfo } from '../../apis/visitorApis';
 import useDepartmentStore from '../../stores/useDepartmentStore';
-import { CircleCheckBig, CircleX } from 'lucide-react';
+import { CircleCheckBig, CircleX, PenLine } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: '이름을 입력해주세요.' }),
@@ -39,7 +39,7 @@ const formSchema = z.object({
       today.setHours(0, 0, 0, 0);
       return date >= today;
     },
-    { message: '방문 시작 날짜를 선택해주세요.' }
+    { message: '방문 날짜를 선택해주세요.' }
   ),
   visitEndDate: z.date().refine(
     (date) => {
@@ -47,13 +47,13 @@ const formSchema = z.object({
       today.setHours(0, 0, 0, 0);
       return date >= today;
     },
-    { message: '방문 종료 날짜를 선택해주세요.' }
+    { message: '방문 날짜를 선택해주세요.' }
   ),
   visitTarget: z.string().min(1, { message: '방문 대상자를 입력해주세요.' }),
   visitPurpose: z.string().min(1, { message: '방문 목적을 입력해주세요.' }),
 });
 
-function RegistrationPage() {
+function VisitorEditPage() {
   const navigate = useNavigate();
   const department = useDepartmentStore((state) => state.department);
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -69,6 +69,13 @@ function RegistrationPage() {
   });
   const [isToastOpen, setIsToastOpen] = useState(false);
   const [isToastError, setIsToastError] = useState(false);
+  const { id } = useParams<{ id: string }>();
+
+  const { data: visitorData } = useQuery<VisitorData>({
+    queryKey: ['visitor', id],
+    queryFn: () => getVisitorById(id!),
+    enabled: !!id,
+  });
 
   const mutation = useMutation<void, Error, VisitorInfo>({
     mutationFn: (data: VisitorInfo) => postVisitorInfo(data),
@@ -83,6 +90,22 @@ function RegistrationPage() {
       console.error('방문자 정보 전송 중 에러가 발생했습니다.', error);
     },
   });
+
+  useEffect(() => {
+    if (visitorData) {
+      setFormData({
+        name: visitorData.name,
+        email: visitorData.email,
+        phone: visitorData.phone,
+        visitStartDate: new Date(visitorData.visitStartDate),
+        visitEndDate: new Date(visitorData.visitEndDate),
+        visitTarget: visitorData.visitTarget,
+        visitPurpose: visitorData.visitPurpose,
+      });
+      setStartDate(new Date(visitorData.visitStartDate));
+      setEndDate(new Date(visitorData.visitEndDate));
+    }
+  }, [visitorData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -130,6 +153,8 @@ function RegistrationPage() {
       mutation.mutate({
         ...formData,
         department,
+        visitStartDate: startDate,
+        visitEndDate: endDate,
         createdAt: new Date(),
       });
     }
@@ -138,12 +163,10 @@ function RegistrationPage() {
   const isFormValid = () => {
     try {
       formSchema.parse(formData);
-      if (
-        new Date(formData.visitStartDate) >= new Date(formData.visitEndDate)
-      ) {
-        return false;
-      }
-      return true;
+
+      return Object.values(formData).every((value) =>
+        typeof value === 'string' ? value.trim() !== '' : true
+      );
     } catch {
       return false;
     }
@@ -164,14 +187,25 @@ function RegistrationPage() {
             </p>
           </Link>
           <div className="flex items-center gap-16 mr-16 font-bold text-xl font-[montserrat] animate-slide-up">
-            <Link to="/select-department">
-              <p>Registration</p>
+            <Link to={`/visitor/${id}/edit`}>
+              <p>Visitor</p>
             </Link>
           </div>
         </header>
         <div className="flex text-zinc-900 items-start w-full">
           <div className="flex flex-col items-start w-full my-10 ml-[10rem] gap-2">
-            <p className="text-gray-500 animate-slide-up">2/2</p>
+            <div className="flex justify-between items-center w-[64rem] h-10 mb-8 px-8 bg-rose-200 text-rose-700 rounded-sm animate-slide-up">
+              <div className="flex items-center gap-2">
+                <PenLine />
+                <p>현재 방문자 정보를 수정하고 있습니다.</p>
+              </div>
+              <button
+                onClick={() => navigate(`/visitor/${id}`)}
+                className="underline cursor-pointer"
+              >
+                수정취소
+              </button>
+            </div>
             <h3 className="text-3xl animate-slide-up">
               방문자님의 정보를 알려주세요
             </h3>
@@ -266,23 +300,17 @@ function RegistrationPage() {
             </div>
           </form>
         </div>
-        <div className="flex justify-end w-[64rem] ml-[10rem] mt-26 gap-4 mb-8">
-          <button
-            onClick={() => navigate('/select-department')}
-            className="bg-gray-400 hover:bg-gray-500 active:bg-gray-600 text-gray-50 px-6 py-3 rounded-lg transition-all duration-300 cursor-pointer"
-          >
-            이전 단계
-          </button>
+        <div className="flex justify-end w-[64rem] ml-[10rem] mt-26 mb-8">
           <button
             onClick={handleSubmit}
+            disabled={!isFormValid()}
             className={`bg-indigo-500 text-gray-50 px-6 py-3 rounded-lg transition-all duration-300 ${
               !isFormValid()
                 ? 'opacity-50 cursor-not-allowed'
                 : 'hover:bg-indigo-600 active:bg-indigo-700 cursor-pointer'
             }`}
-            disabled={!isFormValid()}
           >
-            다음 단계
+            수정 완료
           </button>
         </div>
       </div>
@@ -292,13 +320,13 @@ function RegistrationPage() {
           open={isToastOpen}
           onOpenChange={setIsToastOpen}
           icon={CircleCheckBig}
-          message="방문 접수가 완료되었습니다."
+          message="방문 접수 수정이 완료되었습니다."
         />
         <ToastNotification
           open={isToastError}
           onOpenChange={setIsToastError}
           icon={CircleX}
-          message="방문 접수 중 오류가 발생했습니다."
+          message="방문 접수 수정 중 오류가 발생했습니다."
           isError={true}
         />
         <Toast.Viewport className="fixed top-0 right-0 z-50 p-4" />
@@ -307,4 +335,4 @@ function RegistrationPage() {
   );
 }
 
-export default RegistrationPage;
+export default VisitorEditPage;

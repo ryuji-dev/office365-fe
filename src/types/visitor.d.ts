@@ -3,21 +3,27 @@ export interface VisitorInfo {
   name: string;
   email: string;
   phone: string;
-  visitDate: Date;
+  visitStartDate: Date;
+  visitEndDate: Date;
   visitTarget: string;
   visitPurpose: string;
+  createdAt: Date;
+  updatedAt?: Date;
 }
 
 export interface VisitorData {
   _id: string;
   status: string;
   department: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  visitDate: string;
-  visitTarget?: string;
-  visitPurpose?: string;
+  name: string;
+  email: string;
+  phone: string;
+  visitStartDate: Date;
+  visitEndDate: Date;
+  visitTarget: string;
+  visitPurpose: string;
+  createdAt: Date;
+  updatedAt?: Date;
 }
 
 export interface DepartmentStore {

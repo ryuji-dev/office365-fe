@@ -9,6 +9,7 @@ import VisitorPage from './pages/visitor/VisitorPage';
 import SelectDepartmentPage from './pages/visitor/SelectDepartmentPage';
 import RegistrationPage from './pages/visitor/RegistrationPage';
 import VisitorDetailPage from './pages/visitor/VisitorDetailPage';
+import VisitorEditPage from './pages/visitor/VisitorEditPage';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <Route path="/select-department" element={<SelectDepartmentPage />} />
       <Route path="/registration" element={<RegistrationPage />} />
       <Route path="/visitor/:id" element={<VisitorDetailPage />} />
+      <Route path="/visitor/:id/edit" element={<VisitorEditPage />} />
     </Routes>
   );
 }
