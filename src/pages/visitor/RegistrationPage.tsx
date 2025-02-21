@@ -5,10 +5,10 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { z } from 'zod';
 import * as Toast from '@radix-ui/react-toast';
-import ToastNotification from '../components/common/Toast';
-import { VisitorInfo } from '../types/visitor';
-import { postVisitorInfo } from '../apis/visitorApis';
-import useDepartmentStore from '../stores/useDepartmentStore';
+import ToastNotification from '../../components/common/Toast';
+import { VisitorInfo } from '../../types/visitor';
+import { postVisitorInfo } from '../../apis/visitorApis';
+import useDepartmentStore from '../../stores/useDepartmentStore';
 import { CircleCheckBig, CircleX } from 'lucide-react';
 
 const formSchema = z.object({

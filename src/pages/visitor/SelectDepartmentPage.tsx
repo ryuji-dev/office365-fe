@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import useDepartmentStore from '../stores/useDepartmentStore';
+import useDepartmentStore from '../../stores/useDepartmentStore';
 
 function SelectDepartmentPage() {
   const navigate = useNavigate();

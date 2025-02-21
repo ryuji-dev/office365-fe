@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Tabs } from 'radix-ui';
 import Pagination from '@mui/material/Pagination';
 import { ChevronRight, PenLine } from 'lucide-react';
-import { getVisitors } from '../apis/visitorApis';
-import { VisitorData } from '../types/visitor';
+import { getVisitors } from '../../apis/visitorApis';
+import { VisitorData } from '../../types/visitor';
 
 function VisitorPage() {
   const navigate = useNavigate();
@@ -56,6 +56,10 @@ function VisitorPage() {
 
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
+  };
+
+  const handleVisitorClick = (visitorId: string) => {
+    navigate(`/visitor/${visitorId}`);
   };
 
   // statusStyles 정의
@@ -139,6 +143,7 @@ function VisitorPage() {
                     .map((visitor) => (
                       <div
                         key={visitor._id}
+                        onClick={() => handleVisitorClick(visitor._id)}
                         className="flex justify-between text-zinc-900 px-4 cursor-pointer"
                       >
                         <div className="flex items-center gap-8">

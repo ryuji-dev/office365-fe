@@ -1,13 +1,14 @@
 import { Route, Routes } from 'react-router-dom';
 import './index.css';
 import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import TermsPage from './pages/TermsPage';
-import SignupPage from './pages/SignupPage';
+import LoginPage from './pages/auth/LoginPage';
+import TermsPage from './pages/auth/TermsPage';
+import SignupPage from './pages/auth/SignupPage';
 import MyPage from './pages/MyPage';
-import VisitorPage from './pages/VisitorPage';
-import SelectDepartmentPage from './pages/SelectDepartmentPage';
-import RegistrationPage from './pages/RegistrationPage';
+import VisitorPage from './pages/visitor/VisitorPage';
+import SelectDepartmentPage from './pages/visitor/SelectDepartmentPage';
+import RegistrationPage from './pages/visitor/RegistrationPage';
+import VisitorDetailPage from './pages/visitor/VisitorDetailPage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Route path="/visitor" element={<VisitorPage />} />
       <Route path="/select-department" element={<SelectDepartmentPage />} />
       <Route path="/registration" element={<RegistrationPage />} />
+      <Route path="/visitor/:id" element={<VisitorDetailPage />} />
     </Routes>
   );
 }
