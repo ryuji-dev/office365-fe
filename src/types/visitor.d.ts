@@ -7,7 +7,7 @@ export interface VisitorInfo {
   visitEndDate: Date;
   visitTarget: string;
   visitPurpose: string;
-  createdAt: Date;
+  createdAt?: Date;
   updatedAt?: Date;
 }
 
@@ -22,7 +22,7 @@ export interface VisitorData {
   visitEndDate: Date;
   visitTarget: string;
   visitPurpose: string;
-  createdAt: Date;
+  createdAt?: Date;
   updatedAt?: Date;
 }
 

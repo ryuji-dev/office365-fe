@@ -58,7 +58,12 @@ function VisitorDetailPage() {
                     sideOffset={8}
                   >
                     <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[2rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-indigo-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
-                      <Link to={`/visitor/${id}/edit`}>수정</Link>
+                      <Link
+                        to={`/visitor/${id}/edit`}
+                        className="flex items-center w-full h-full"
+                      >
+                        수정
+                      </Link>
                     </DropdownMenu.Item>
                     <DropdownMenu.Item className="group cursor-pointer relative flex pt-0.5 h-8 select-none items-center rounded-sm pl-[2rem] leading-none text-indigo-700 outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-rose-500 data-[disabled]:text-mauve8 data-[highlighted]:text-violet1 hover:text-gray-50">
                       삭제

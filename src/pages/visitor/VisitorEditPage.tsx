@@ -33,22 +33,8 @@ const formSchema = z.object({
         message: '연락처 형식이 올바르지 않습니다.',
       }
     ),
-  visitStartDate: z.date().refine(
-    (date) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return date >= today;
-    },
-    { message: '방문 날짜를 선택해주세요.' }
-  ),
-  visitEndDate: z.date().refine(
-    (date) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return date >= today;
-    },
-    { message: '방문 날짜를 선택해주세요.' }
-  ),
+  visitStartDate: z.date(),
+  visitEndDate: z.date(),
   visitTarget: z.string().min(1, { message: '방문 대상자를 입력해주세요.' }),
   visitPurpose: z.string().min(1, { message: '방문 목적을 입력해주세요.' }),
 });
