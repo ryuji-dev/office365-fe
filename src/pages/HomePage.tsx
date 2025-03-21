@@ -255,7 +255,7 @@ function HomePage() {
             </a>
           </p>
           <p className="text-xs text-gray-400 animate-slide-up">
-            Copyright ⓒ 2025 - OFFICE 365. All Rights Reserved.
+            Copyright ⓒ 2025 - OFFICE 365 Co. All Rights Reserved.
           </p>
         </div>
       </footer>

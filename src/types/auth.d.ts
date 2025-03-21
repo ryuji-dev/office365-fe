@@ -28,6 +28,7 @@ export interface User {
   _id: string;
   email: string;
   profileImage: string;
+  token?: string;
 }
 
 export interface AuthState {
